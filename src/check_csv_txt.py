@@ -2,18 +2,25 @@ import os
 from get_id_by_reentry import begin_date
 from get_id_by_reentry import end_date
 
+count = 0
+
 def check_csv_txt_exists(id):
+    global count
     txt_exists = os.path.isfile(f'../data/tles/tle_{id}.txt')
     csv_exist = os.path.isfile(f'../data/human_readable/tle_{id}.csv')
     if not txt_exists and not csv_exist:
-        print(f'{id} neither file exists')
+        count += 1
+        print(f'{count}: {id} neither file exists')
         return
     if not txt_exists:
-        print(f'{id} txt file does not exist')
+        count += 1
+        print(f'{count}: {id} txt file does not exist')
     if not csv_exist:
-        print(f'{id} csv file does not exist')
+        count += 1
+        print(f'{count}: {id} csv file does not exist')
 
 def main():
+    global count
     with open('../data/reentry-' + begin_date + '-to-' + end_date + '.txt', 'r') as file:
         # pass over headers
         file.readline()
