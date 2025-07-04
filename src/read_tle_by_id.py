@@ -139,7 +139,7 @@ def get_date_from_tle(line1):
 
 # creates flight data for date in given tle and adds the values to lists
 def process_tle_data(id):
-    with open('./data/tles/tle_' + str(id) + '.txt') as data:
+    with open('../data/tles/tle_' + str(id) + '.txt') as data:
         # list of all the lines
         lines = data.readlines()[:]
     data.close()
@@ -152,7 +152,7 @@ def process_tle_data(id):
         tle_list.append(data)
 
 def write_data_to_csv(id):
-    with open('./data/human_readable/tle_' + str(id) + '.csv', 'w') as file:
+    with open('../data/human_readable/tle_' + str(id) + '.csv', 'w') as file:
 
         file.write("DATE, ALTITUDE, VELOCITY, LATITUDE, LONGITUDE, DENSITY, LOCAL TIME\n")
 
@@ -161,7 +161,11 @@ def write_data_to_csv(id):
             file.write(f'{str(tle.get_date())},{tle.get_altitude()},{tle.get_velocity()},{tle.get_latitude()},{tle.get_longitude()},{get_density(tle)},{get_local_time(tle.get_day_of_year(), tle.get_longitude(), tle.get_utc())}\n')
 
 def main():
-    with open('reentry-' + begin_date + '-to-' + end_date + '.txt', 'r') as file:
+    with open('../data/reentry-' + begin_date + '-to-' + end_date + '.txt', 'r') as file:
+
+        if not os.path.exists("../data/human_readable/"):
+            os.makedirs("../data/human_readable/")
+
         # pass over headers
         file.readline()
 
@@ -171,7 +175,7 @@ def main():
         for id in file:
             id = int(id.strip())
 
-            if os.path.exists("./data/human_readable/tle_" + str(id) + ".csv"):
+            if os.path.exists("../data/human_readable/tle_" + str(id) + ".csv"):
                 continue
 
             # create new satellite object and write data to file

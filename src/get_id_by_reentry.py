@@ -40,7 +40,7 @@ def get_data():
 
 # takes in a list of starlink data (provided by get_data()) and creates a txt file of all the NORAD IDs
 def write_ids_to_txt(data):
-    with open("reentry-" + begin_date + "-to-" + end_date + ".txt", "w") as file:
+    with open("../data/reentry-" + begin_date + "-to-" + end_date + ".txt", "w") as file:
         # list of all the lines
         lines = data.strip("[]").split("}")
 

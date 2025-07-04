@@ -1,6 +1,8 @@
 # Project specific files
 SLTrack.ini
 .DS_Store
+/data/tles
+/data/human_readable
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

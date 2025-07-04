@@ -4,7 +4,7 @@ from get_id_by_reentry import begin_date
 from get_id_by_reentry import end_date
 import datetime
 import time
-from os.path import exists
+import os.path
 
 # given a NORAD ID, returns the TLE data for the corresponding satellite
 def get_tle(id):
@@ -42,14 +42,17 @@ def get_tle(id):
 
 # given tle data, add it to txt file
 def write_tle_to_txt(tle, id):
-    with open("./data/tles/tle_" + str(id) + ".txt", "w") as file:
+    with open("../data/tles/tle_" + str(id) + ".txt", "w") as file:
         file.write(tle)
 
 # loops through the norad ids in the txt file
 def main():
     start_time = datetime.datetime.now()
 
-    with open('reentry-'+ begin_date + '-to-' + end_date + '.txt', 'r') as file:
+    with open('../data/reentry-'+ begin_date + '-to-' + end_date + '.txt', 'r') as file:
+        if not os.path.exists("../data/tles/"):
+            os.makedirs("../data/tles/")
+
         # pass over headers
         file.readline()
 
@@ -60,7 +63,7 @@ def main():
         for id in file:
             id = int(id.strip())
 
-            if exists("./data/tles/tle_" + str(id) + ".txt"):
+            if os.path.exists("../data/tles/tle_" + str(id) + ".txt"):
                 continue
 
             tle = get_tle(id)
