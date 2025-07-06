@@ -1,9 +1,6 @@
 import os
 import re
 
-from get_id_by_reentry import begin_date
-from get_id_by_reentry import end_date
-
 count = 0
 
 masterlist_ids = []
@@ -50,7 +47,7 @@ def check_oliveira_data_against_masterlist():
     print("Finished checking Oliveira data\n")
 
 def run_check_csv_txt():
-    with open('../data/reentry-' + begin_date + '-to-' + end_date + '.txt', 'r') as file:
+    with open('../data/reentry_ids_masterlist.txt', 'r') as file:
         # pass over headers
         file.readline()
 

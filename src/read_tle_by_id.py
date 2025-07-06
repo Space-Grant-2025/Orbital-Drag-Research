@@ -1,12 +1,9 @@
 import datetime
 import os
 import re
-import fnmatch
 from pyatmos import download_sw_jb2008, read_sw_jb2008, jb2008
 import ephem
 import math
-from get_id_by_reentry import begin_date
-from get_id_by_reentry import end_date
 
 # inverse flattening at each pole for Earth ellipsoid (WGS 84)
 flattening = 1. / 298.257223563
@@ -161,7 +158,7 @@ def write_data_to_csv(id):
             file.write(f'{str(tle.get_date())},{tle.get_altitude()},{tle.get_velocity()},{tle.get_latitude()},{tle.get_longitude()},{get_density(tle)},{get_local_time(tle.get_day_of_year(), tle.get_longitude(), tle.get_utc())}\n')
 
 def main():
-    with open('../data/reentry-' + begin_date + '-to-' + end_date + '.txt', 'r') as file:
+    with open('../data/reentry_ids_masterlist.txt', 'r') as file:
 
         if not os.path.exists("../data/human_readable/"):
             os.makedirs("../data/human_readable/")

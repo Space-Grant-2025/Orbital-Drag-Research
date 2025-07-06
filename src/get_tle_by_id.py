@@ -1,7 +1,5 @@
 import requests
 import configparser
-from get_id_by_reentry import begin_date
-from get_id_by_reentry import end_date
 import datetime
 import time
 import os.path
@@ -49,7 +47,7 @@ def write_tle_to_txt(tle, id):
 def main():
     start_time = datetime.datetime.now()
 
-    with open('../data/reentry-'+ begin_date + '-to-' + end_date + '.txt', 'r') as file:
+    with open('../data/reentry_ids_masterlist.txt', 'r') as file:
         if not os.path.exists("../data/tles/"):
             os.makedirs("../data/tles/")
 
