@@ -31,6 +31,7 @@ def check_csv_txt_exists(id):
 def check_oliveira_data_against_masterlist():
     with open(f'../data/oliveira_data.txt', 'r') as file:
         global count
+        count = 0
         # pass over headers
         file.readline()
         file.readline()
@@ -46,7 +47,7 @@ def check_oliveira_data_against_masterlist():
                 count += 1
                 print(f'{count}: {id} not in masterlist. Reentry: {reentry}')
 
-    print("Finished")
+    print("Finished checking Oliveira data\n")
 
 def run_check_csv_txt():
     with open('../data/reentry-' + begin_date + '-to-' + end_date + '.txt', 'r') as file:
@@ -58,7 +59,7 @@ def run_check_csv_txt():
             id = id.strip()
             masterlist_ids.append(id)
             check_csv_txt_exists(id)
-    print("Finished")
+    print("Finished checking csv and txt files\n")
 
 run_check_csv_txt()
 check_oliveira_data_against_masterlist()
