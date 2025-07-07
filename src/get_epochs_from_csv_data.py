@@ -1,8 +1,13 @@
 import os
 import sys
+import sgp4
+from sgp4.api import SGP4_ERRORS
+from sgp4 import conveniences
+from collections import deque
+import datetime
 
 # given a NORAD ID, reads in processed csv data and return the time when satellite altitude is closest to 280km
-def get_zero_epoch(id):
+def estimate_280km(id):
     with open(f'./data/human_readable/tle_{id}.csv', 'r') as csvfile:
         # pass over header
         csvfile.readline()
@@ -21,10 +26,20 @@ def get_zero_epoch(id):
                 closest_alt = current_alt
     return closest_alt
 
+def propagate_100km(id):
+    # get julian day of last tle data point
+    with open(f'./data/human_readable/tle_{id}.csv', 'r') as file:
+        # pass over headers
+        file.readline()
+
+        last_line = deque(file, maxlen=1).pop().strip()
+        last_date = datetime.datetime.strptime(last_line.split()[0], '%Y/%m/%d %H:%M:%S%Z')
+        julian_day, fraction = conveniences.jday_datetime(last_date)
+
 def write_epochs_to_csv(id):
-    prediction_epoch = get_zero_epoch(id)[0]
-    height_280km = get_zero_epoch(id)[1]
-    
+    prediction_epoch = estimate_280km(id)[0]
+    height_280km = estimate_280km(id)[1]
+
     with open(f'../data/epochs.csv', 'w') as epochs:
         epochs.write(f'{id},{prediction_epoch},{height_280km}\n')
 
@@ -47,4 +62,4 @@ def main():
             write_epochs_to_csv(id)
 
 
-print(get_zero_epoch(48384))
+print(estimate_280km(48384))

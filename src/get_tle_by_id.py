@@ -76,6 +76,6 @@ def main():
 
     # prints total time program takes to run because i'm curious
     end_time = datetime.datetime.now()
-    print(str(end_time - start_time))
+    print(str(f'Finished: {end_time - start_time}'))
 
 main()
