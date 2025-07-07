@@ -15,8 +15,6 @@ grav = 6.6743e-11
 # mass of Earth
 earth_mass = 5.9722e24
 
-tle_list = []
-
 # compile lastest jb2008 data
 swfile = download_sw_jb2008()
 swdata = read_sw_jb2008(swfile)
@@ -136,6 +134,7 @@ def get_date_from_tle(line1):
 
 # creates flight data for date in given tle and adds the values to lists
 def process_tle_data(id):
+    tle_list = []
     with open('../data/tles/tle_' + str(id) + '.txt') as data:
         # list of all the lines
         lines = data.readlines()[:]
@@ -147,8 +146,9 @@ def process_tle_data(id):
         line2 = lines[x + 1].strip("\n")
         data = tle(id, line1, line2)
         tle_list.append(data)
+    return tle_list
 
-def write_data_to_csv(id):
+def write_data_to_csv(id, tle_list):
     with open('../data/human_readable/tle_' + str(id) + '.csv', 'w') as file:
 
         file.write("DATE, ALTITUDE, VELOCITY, LATITUDE, LONGITUDE, DENSITY, LOCAL TIME\n")
@@ -176,8 +176,8 @@ def main():
                 continue
 
             # create new satellite object and write data to file
-            process_tle_data(id)
-            write_data_to_csv(id)
+
+            write_data_to_csv(id, process_tle_data(id))
             print(count)
             count += 1
 
