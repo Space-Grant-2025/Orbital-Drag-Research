@@ -34,7 +34,7 @@ from read_tle_by_id import get_date_from_tle
 
 # given a NORAD ID, reads in processed csv data
 # returns altitude closest to 280km and corresponding epoch
-def get_reference_alt(id):
+def get_reference(id):
     with open(f'../data/human_readable/tle_{id}.csv', 'r') as csvfile:
         # pass over header
         csvfile.readline()
@@ -66,10 +66,10 @@ def get_estimated_reentry(id):
         tle2 = file_queue.pop().strip()
         tle1 = file_queue.pop().strip()
 
-    return  get_100km(id, tle1, tle2)
+    return get_100km(id, tle1, tle2)
 
-def get_prediction_epoch(id):
-    reference_date = get_reference_alt(id)[1]
+def get_prediction(id):
+    reference_date = get_reference(id)[1]
 
     with (open(f'../data/tles/tle_{id}.txt', 'r') as file):
         lines = file.readlines()[:]
@@ -108,7 +108,7 @@ def get_100km(id, tle1, tle2):
 
 # get minimum dst within the next 14 days after reference altitude occurrence
 # dst files downloaded from https://wdc.kugi.kyoto-u.ac.jp/dst_realtime/index.html in wdc format
-def get_dst(id):
+'''def get_dst(id):
 
     reference_epoch = get_reference_alt(id)[1]
     # number of hours after reference epoch
@@ -133,29 +133,61 @@ def get_dst(id):
 
 					if t280 < ti < t280 + cutoff * 60:
 						dst.append(float(lines[i:i+4]))
-	return min(dst)
+	return min(dst)'''
 
-def write_epochs_to_csv(id):
-    with open(f'../data/epochs.csv', 'w') as epochs:
-        epochs.write("NORAD ID, REFERENCE ALTITUDE EPOCH, REFERENCE ALTITUDE (KM), ESTIMATED REENTRY EPOCH, ESTIMATED REENTRY ALTITUDE (KM), PREDICTION EPOCH, PREDICTION ALTITUDE, MIN DST\n")
-        epochs.write(f'{id},{get_reference_alt(id)[1]},{get_reference_alt(id)[0]},{get_estimated_reentry(id)[1]},{get_estimated_reentry(id)[0]},{get_prediction_epoch(id)[1]},{get_prediction_epoch(id)[0]}\n')
+class satellite_epochs:
+    def __init__(self, id):
+        self.id = id
+        self.reference_epoch = get_reference(id)[1]
+        self.reference_alt = get_reference(id)[0]
+        self.estimated_reentry_epoch = get_estimated_reentry(id)[1]
+        self.estimated_reentry_alt = get_estimated_reentry(id)[0]
+        self.prediction_epoch = get_prediction(id)[1]
+        self.prediction_alt = get_prediction(id)[0]
+        self.min_dst = None
 
-def main():
+# getters
+def get_id(self):
+    return self.id
+def get_reference_epoch(self):
+    return self.reference_epoch
+def get_reference_alt(self):
+    return self.reference_alt
+def get_estimated_reentry_epoch(self):
+    return self.estimated_reentry_epoch
+def get_estimated_reentry_alt(self):
+    return self.estimated_reentry_alt
+def get_prediction_epoch(self):
+    return self.prediction_epoch
+def get_prediction_alt(self):
+    return self.prediction_alt
+def get_min_dst(self):
+    return self.min_dst
+
+def write_epochs_to_csv(epochs_list):
     # delete epochs.csv every time this program runs to get a fresh set of data
     if os.path.exists(f'../data/epochs.csv'):
         os.remove(f'../data/epochs.csv')
 
-    # write headers
     with open(f'../data/epochs.csv', 'w') as epochs:
-        epochs.write("NORAD ID, REFERENCE ALTITUDE EPOCH, REFERENCE ALTITUDE (KM), ESTIMATED REENTRY EPOCH, ESTIMATED REENTRY ALTITUDE (KM), PREDICTION EPOCH, PREDICTION ALTITUDE (KM), MIN DST")
-        epochs.close()
+        # write headers
+        epochs.write("NORAD ID, REFERENCE ALTITUDE EPOCH, REFERENCE ALTITUDE (KM), ESTIMATED REENTRY EPOCH, ESTIMATED REENTRY ALTITUDE (KM), PREDICTION EPOCH, PREDICTION ALTITUDE (KM), MIN DST\n")
 
-    with open(f'../data/reentry_ids_masterlist.txt.txt', 'r') as masterlist:
+        for satellite in epochs_list:
+            epochs.write(f'{get_id(satellite)},{get_reference_epoch(satellite)},{get_reference_alt(satellite)},{get_estimated_reentry_epoch(satellite)},{get_estimated_reentry_alt(satellite)},{get_prediction_epoch(satellite)},{get_prediction_alt(satellite)},{get_min_dst(satellite)}\n')
+
+def main():
+    epochs_list = []
+
+    with open(f'../data/reentry_ids_masterlist.txt', 'r') as masterlist:
         # pass over headers
         masterlist.readline()
 
         for id in masterlist:
             id = id.strip()
-            write_epochs_to_csv(id)
+            satellite = satellite_epochs(id)
+            epochs_list.append(satellite)
+            write_epochs_to_csv(epochs_list)
 
-write_epochs_to_csv(48384)
+if __name__ == '__main__':
+    main()
