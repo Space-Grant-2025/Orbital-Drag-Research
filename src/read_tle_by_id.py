@@ -3,6 +3,7 @@ import os
 import re
 import ephem
 import math
+import pyautogui
 
 # inverse flattening at each pole for Earth ellipsoid (WGS 84)
 flattening = 1. / 298.257223563
@@ -181,6 +182,9 @@ def main():
 
             # create new satellite object and write data to file
             write_data_to_csv(id, process_tle_data(id))
+
+            # jitter to keep computer awake
+            pyautogui.press('shift')
 
             # progress tracker
             print(f'{count}: {id}')
