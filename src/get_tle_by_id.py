@@ -78,4 +78,5 @@ def main():
     end_time = datetime.datetime.now()
     print(str(f'Finished: {end_time - start_time}'))
 
-main()
+if __name__ == '__main__':
+    main()
