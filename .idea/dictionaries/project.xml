@@ -2,6 +2,8 @@
   <dictionary name="project">
     <words>
       <w>masterlist</w>
+      <w>nrlmsise</w>
+      <w>swfile</w>
     </words>
   </dictionary>
 </component>
