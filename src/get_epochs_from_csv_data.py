@@ -38,7 +38,7 @@ def get_reference_alt(id):
         # pass over header
         csvfile.readline()
         # tuple holding closest altitude and corresponding date, initialized at massive number and date placeholder
-        closest_alt = float(sys.maxsize), "0000-00-00 00:00:00"
+        closest_alt = float(sys.maxsize), None
 
         # loop over csv data and hold altitude nearest to 280 and corresponding altitude
         for row in csvfile:
@@ -65,31 +65,50 @@ def get_estimated_reentry(id):
         tle2 = file_queue.pop().strip()
         tle1 = file_queue.pop().strip()
 
-        # ephem object reads in given tle data
-        ephem_satellite = ephem.readtle('NORAD' + str(id), tle1, tle2)
+    return  get_100km(id, tle1, tle2)
 
-        # initalize date
-        date = get_date_from_tle(tle1)
-        one_hr = timedelta(hours=1)
+def get_prediction_epoch(id):
+    reference_date = get_reference_alt(id)[1]
 
-        # increase date by one hour until elevation is less than 100km
-        altitude = 9999
-        while altitude >= 100:
-            # increment date and make readable to pyephem
-            date = date + one_hr
-            str_date = datetime.strftime(date, "%Y-%m-%d %H:%M:%S")
-            ephem_date = ephem.date(str_date)
+    with (open(f'../data/tles/tle_{id}.txt', 'r') as file):
+        lines = file.readlines()[:]
+    file.close()
 
-            # compute satellite
-            ephem_satellite.compute(ephem_date)
-            altitude = ephem_satellite.elevation / 1000
+    for x in range(0, len(lines), 2):
+        # create tle object and add to list
+        tle1 = lines[x].strip("\n")
+        tle2 = lines[x + 1].strip("\n")
 
-        return altitude, str(date)
+        if str(get_date_from_tle(tle1)) == reference_date:
+            return get_100km(id, tle1, tle2)
+    return None
 
+def get_100km(id, tle1, tle2):
+    # ephem object reads in given tle data
+    ephem_satellite = ephem.readtle('NORAD' + str(id), tle1, tle2)
+
+    # initialize date
+    date = get_date_from_tle(tle1)
+    one_hr = timedelta(hours=1)
+
+    # increase date by one hour until elevation is less than 100km
+    altitude = 9999
+    while altitude >= 100:
+        # increment date and make readable to pyephem
+        date = date + one_hr
+        str_date = datetime.strftime(date, "%Y-%m-%d %H:%M:%S")
+        ephem_date = ephem.date(str_date)
+
+        # compute satellite
+        ephem_satellite.compute(ephem_date)
+        altitude = ephem_satellite.elevation / 1000
+
+    return altitude, str(date)
 
 def write_epochs_to_csv(id):
     with open(f'../data/epochs.csv', 'w') as epochs:
-        epochs.write(f'{id},{get_reference_alt(id)[1]},{get_reference_alt(id)[0]},{get_estimated_reentry(id)[1]},{get_estimated_reentry(id)[0]}\n')
+        epochs.write("NORAD ID, REFERENCE ALTITUDE EPOCH, REFERENCE ALTITUDE (KM), ESTIMATED REENTRY EPOCH, ESTIMATED REENTRY ALTITUDE (KM), PREDICTION EPOCH, PREDICTION ALTITUDE, MIN DST\n")
+        epochs.write(f'{id},{get_reference_alt(id)[1]},{get_reference_alt(id)[0]},{get_estimated_reentry(id)[1]},{get_estimated_reentry(id)[0]},{get_prediction_epoch(id)[1]},{get_prediction_epoch(id)[0]}\n')
 
 def main():
     # delete epochs.csv every time this program runs to get a fresh set of data
@@ -98,7 +117,7 @@ def main():
 
     # write headers
     with open(f'../data/epochs.csv', 'w') as epochs:
-        epochs.write("NORAD ID, REFERENCE ALTITUDE EPOCH, REFERENCE ALTITUDE (KM), ESTIMATED REENTRY EPOCH, ESTIMATED REENTRY ALTITUDE (KM), PREDICTION EPOCH, PREDICTION ALTITUDE, MIN DST")
+        epochs.write("NORAD ID, REFERENCE ALTITUDE EPOCH, REFERENCE ALTITUDE (KM), ESTIMATED REENTRY EPOCH, ESTIMATED REENTRY ALTITUDE (KM), PREDICTION EPOCH, PREDICTION ALTITUDE (KM), MIN DST")
         epochs.close()
 
     with open(f'../data/reentry_ids_masterlist.txt.txt', 'r') as masterlist:
@@ -109,4 +128,4 @@ def main():
             id = id.strip()
             write_epochs_to_csv(id)
 
-write_epochs_to_csv(44235)
+write_epochs_to_csv(48384)
