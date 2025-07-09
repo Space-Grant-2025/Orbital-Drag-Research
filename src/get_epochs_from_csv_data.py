@@ -1,3 +1,4 @@
+import glob
 import os
 import sys
 from datetime import timedelta, datetime
@@ -104,6 +105,35 @@ def get_100km(id, tle1, tle2):
         altitude = ephem_satellite.elevation / 1000
 
     return altitude, str(date)
+
+# get minimum dst within the next 14 days after reference altitude occurrence
+# dst files downloaded from https://wdc.kugi.kyoto-u.ac.jp/dst_realtime/index.html in wdc format
+def get_dst(id):
+
+    reference_epoch = get_reference_alt(id)[1]
+    # number of hours after reference epoch
+    hr_interval = 14
+
+	dst = []
+	dst_bag = sorted(glob.glob('../data/dst/dst_*'))
+
+	for file in dst_bag:
+		with open(file) as data:
+			for lines in data:
+
+				year = int(lines[3:5]) + 2000
+				month = int(lines[5:7])
+				day = int(lines[8:10])
+
+				day_of_year = day2doy(year, month, day)
+
+				for i, j in zip(range(20, 119, 4), range(1, 25)):
+
+					ti = (year - 2000) * 365 * 24 + (day_of_year - 1) * 24 + j - 1
+
+					if t280 < ti < t280 + cutoff * 60:
+						dst.append(float(lines[i:i+4]))
+	return min(dst)
 
 def write_epochs_to_csv(id):
     with open(f'../data/epochs.csv', 'w') as epochs:
