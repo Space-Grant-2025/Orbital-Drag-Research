@@ -2,11 +2,39 @@ import glob
 import os
 import sys
 from datetime import timedelta, datetime
-
 import ephem
 import queue
 from read_tle_by_id import get_date_from_tle
+from special_tools import day2doy
 
+class satellite_epochs:
+    def __init__(self, id):
+        self.id = id
+        self.reference_epoch = get_reference(id)[1]
+        self.reference_alt = get_reference(id)[0]
+        self.estimated_reentry_epoch = get_estimated_reentry(id)[1]
+        self.estimated_reentry_alt = get_estimated_reentry(id)[0]
+        self.prediction_epoch = get_prediction(id)[1]
+        self.prediction_alt = get_prediction(id)[0]
+        self.min_dst = get_dst(id)
+
+# getters
+def get_id(self):
+    return self.id
+def get_reference_epoch(self):
+    return self.reference_epoch
+def get_reference_alt(self):
+    return self.reference_alt
+def get_estimated_reentry_epoch(self):
+    return self.estimated_reentry_epoch
+def get_estimated_reentry_alt(self):
+    return self.estimated_reentry_alt
+def get_prediction_epoch(self):
+    return self.prediction_epoch
+def get_prediction_alt(self):
+    return self.prediction_alt
+def get_min_dst(self):
+    return self.min_dst
 
 # prediction epoch (space-track.org)
 # take reference altitude tle and create array hour by hour and create new objects for pyephem to read
@@ -117,61 +145,32 @@ def get_100km(id, tle1, tle2):
 
 # get minimum dst within the next 14 days after reference altitude occurrence
 # dst files downloaded from https://wdc.kugi.kyoto-u.ac.jp/dst_realtime/index.html in wdc format
-'''def get_dst(id):
-
-    reference_epoch = get_reference_alt(id)[1]
+def get_dst(id):
+    reference_epoch = get_reference(id)[1]
     # number of hours after reference epoch
-    hr_interval = 14
+    cutoff = 14
+    dst_list = []
+    dst_bag = sorted(glob.glob('../data/dst/dst*'))
 
-	dst = []
-	dst_bag = sorted(glob.glob('../data/dst/dst_*'))
+    for file in dst_bag:
+        with open(file) as data:
+            for lines in data:
+                year = int(lines[3:5]) + 2000
+                month = int(lines[5:7])
+                day = int(lines[8:10])
 
-	for file in dst_bag:
-		with open(file) as data:
-			for lines in data:
+                day_of_year = day2doy(year, month, day)
 
-				year = int(lines[3:5]) + 2000
-				month = int(lines[5:7])
-				day = int(lines[8:10])
+                # extract dst data from file
+                for dst, hour in zip(range(20, 119, 4), range(1, 25)):
+                    time = (year - 2000) * 365 * 24 + (day_of_year - 1) * 24 + hour - 1
+                    print(time)
 
-				day_of_year = day2doy(year, month, day)
+                    if reference_epoch < time < (reference_epoch + cutoff * 60):
+                        dst_list.append(float(lines[dst:dst+4]))
+    print(min(dst_list))
+    return min(dst_list)
 
-				for i, j in zip(range(20, 119, 4), range(1, 25)):
-
-					ti = (year - 2000) * 365 * 24 + (day_of_year - 1) * 24 + j - 1
-
-					if t280 < ti < t280 + cutoff * 60:
-						dst.append(float(lines[i:i+4]))
-	return min(dst)'''
-
-class satellite_epochs:
-    def __init__(self, id):
-        self.id = id
-        self.reference_epoch = get_reference(id)[1]
-        self.reference_alt = get_reference(id)[0]
-        self.estimated_reentry_epoch = get_estimated_reentry(id)[1]
-        self.estimated_reentry_alt = get_estimated_reentry(id)[0]
-        self.prediction_epoch = get_prediction(id)[1]
-        self.prediction_alt = get_prediction(id)[0]
-        self.min_dst = None
-
-# getters
-def get_id(self):
-    return self.id
-def get_reference_epoch(self):
-    return self.reference_epoch
-def get_reference_alt(self):
-    return self.reference_alt
-def get_estimated_reentry_epoch(self):
-    return self.estimated_reentry_epoch
-def get_estimated_reentry_alt(self):
-    return self.estimated_reentry_alt
-def get_prediction_epoch(self):
-    return self.prediction_epoch
-def get_prediction_alt(self):
-    return self.prediction_alt
-def get_min_dst(self):
-    return self.min_dst
 
 def write_epochs_to_csv(epochs_list):
     # delete epochs.csv every time this program runs to get a fresh set of data

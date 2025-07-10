@@ -3,6 +3,7 @@ SLTrack.ini
 .DS_Store
 /data/tles
 /data/human_readable
+/data/dst
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
