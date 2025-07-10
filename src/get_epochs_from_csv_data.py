@@ -4,7 +4,7 @@ import sys
 from datetime import timedelta, datetime
 
 import ephem
-from collections import deque
+import queue
 from read_tle_by_id import get_date_from_tle
 
 
@@ -62,9 +62,13 @@ def get_estimated_reentry(id):
         file.readline()
 
         # gather last tle data point
-        file_queue = deque(file.readlines())
-        tle2 = file_queue.pop().strip()
-        tle1 = file_queue.pop().strip()
+        tles = file.readlines()
+    file_queue = queue.LifoQueue(len(tles))
+    for tle in tles:
+        file_queue.put(tle)
+
+    tle2 = file_queue.get().strip()
+    tle1 = file_queue.get().strip()
 
     return get_100km(id, tle1, tle2)
 
@@ -94,9 +98,14 @@ def get_100km(id, tle1, tle2):
 
     # increase date by one hour until elevation is less than 100km
     altitude = 9999
+    count = 0
     while altitude >= 100:
+        # checks if loop has gone beyond 6 months (30 days each)
+        if count >= 4320:
+            return "", ""
         # increment date and make readable to pyephem
         date = date + one_hr
+        count += 1
         str_date = datetime.strftime(date, "%Y-%m-%d %H:%M:%S")
         ephem_date = ephem.date(str_date)
 
@@ -173,7 +182,10 @@ def write_epochs_to_csv(epochs_list):
         # write headers
         epochs.write("NORAD ID, REFERENCE ALTITUDE EPOCH, REFERENCE ALTITUDE (KM), ESTIMATED REENTRY EPOCH, ESTIMATED REENTRY ALTITUDE (KM), PREDICTION EPOCH, PREDICTION ALTITUDE (KM), MIN DST\n")
 
+        count = 0
         for satellite in epochs_list:
+            count += 1
+            print(f'{count}: {get_id(satellite)}')
             epochs.write(f'{get_id(satellite)},{get_reference_epoch(satellite)},{get_reference_alt(satellite)},{get_estimated_reentry_epoch(satellite)},{get_estimated_reentry_alt(satellite)},{get_prediction_epoch(satellite)},{get_prediction_alt(satellite)},{get_min_dst(satellite)}\n')
 
 def main():
@@ -185,9 +197,11 @@ def main():
 
         for id in masterlist:
             id = id.strip()
+            print(id)
             satellite = satellite_epochs(id)
             epochs_list.append(satellite)
-            write_epochs_to_csv(epochs_list)
+
+    write_epochs_to_csv(epochs_list)
 
 if __name__ == '__main__':
     main()

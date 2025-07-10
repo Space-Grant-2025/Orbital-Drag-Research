@@ -63,6 +63,7 @@ def add_oliveira_data_to_masterlist():
     with open('../data/reentry_ids_masterlist.txt', 'a') as masterlist:
         for id in oliveira_ids:
             masterlist.write(id + "\n")
+    print("Added Oliveira data to masterlist\n")
 
 run_check_csv_txt()
 check_oliveira_data_against_masterlist()
