@@ -147,7 +147,14 @@ def get_100km(id, tle1, tle2):
 # dst files downloaded from https://wdc.kugi.kyoto-u.ac.jp/dst_realtime/index.html in wdc format
 def get_dst(id):
     reference_epoch = get_reference(id)[1]
-    # number of hours after reference epoch
+    reference_epoch = datetime.strptime(reference_epoch, "%Y-%m-%d %H:%M:%S%z")
+    reference_year = reference_epoch.year
+    reference_days = day2doy(reference_epoch.year, reference_epoch.month, reference_epoch.day)
+    reference_hour = reference_epoch.hour
+
+    reference_time = (reference_year - 2000) * 365 * 24 + (reference_days - 1) * 24 + reference_hour - 1
+
+    # number of days after reference epoch
     cutoff = 14
     dst_list = []
     dst_bag = sorted(glob.glob('../data/dst/dst*'))
@@ -163,12 +170,11 @@ def get_dst(id):
 
                 # extract dst data from file
                 for dst, hour in zip(range(20, 119, 4), range(1, 25)):
+                    # number of hours since 2000
                     time = (year - 2000) * 365 * 24 + (day_of_year - 1) * 24 + hour - 1
-                    print(time)
 
-                    if reference_epoch < time < (reference_epoch + cutoff * 60):
+                    if reference_time < time < (reference_time + cutoff * 60):
                         dst_list.append(float(lines[dst:dst+4]))
-    print(min(dst_list))
     return min(dst_list)
 
 
@@ -191,14 +197,16 @@ def main():
     epochs_list = []
 
     with open(f'../data/reentry_ids_masterlist.txt', 'r') as masterlist:
+        count = 1
         # pass over headers
         masterlist.readline()
 
         for id in masterlist:
             id = id.strip()
-            print(id)
             satellite = satellite_epochs(id)
             epochs_list.append(satellite)
+            print(f'{count}: {id}')
+            count += 1
 
     write_epochs_to_csv(epochs_list)
 
