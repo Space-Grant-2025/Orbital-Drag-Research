@@ -6,7 +6,6 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plot
 from matplotlib.ticker import LinearLocator, ScalarFormatter
 
-
 class satellite_data:
     def __init__(self, id, date, altitude, velocity, longitude, latitude, jb2008, nrlmsise, local_time):
         self.id = id
@@ -59,6 +58,29 @@ def gather_data_from_csv(id):
             satellite_instance = satellite_data(id, date, altitude, velocity, longitude, latitude, jb2008, nrlmsise, local_time)
             satellite_list.append(satellite_instance)
     return satellite_list
+
+def plot_reentries_time():
+    reentry_list = []
+    with open('../data/epochs.csv', 'r') as file:
+        csv_reader = reader(file)
+        # pass over headers
+        next(csv_reader)
+
+        for row in csv_reader:
+            if row[5] != '':
+                reentry_date = datetime.strptime(row[5], "%Y-%m-%d %H:%M:%S%z")
+                reentry_list.append(reentry_date)
+
+    fig, ax = plot.subplots(layout='constrained')
+    # x axis (dates)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%y'))
+    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
+
+    plot.hist(reentry_list, bins=53)
+    plot.title("Starlink Reentries 01/01/2020 to 05/31/2025")
+    plot.ylabel("Number of Reentries")
+    plot.xlabel("Date (MM/YY)")
+    plot.show()
 
 def plot_altitude_time(satellite_list):
     # lists to plot
@@ -192,4 +214,5 @@ if __name__ == '__main__':
         for id in masterlist:
             id = id.strip()
             plot_density_altitude(gather_data_from_csv(id))'''
-    plot_altitude_time(gather_data_from_csv(44235))
+    #plot_altitude_time(gather_data_from_csv(44235))
+    plot_reentries_time()
