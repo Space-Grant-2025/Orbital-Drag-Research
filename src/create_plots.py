@@ -2,6 +2,7 @@ from csv import reader
 from datetime import timedelta, datetime
 
 import matplotlib
+import matplotlib.dates as mdates
 import matplotlib.pyplot as plot
 from matplotlib.ticker import LinearLocator, ScalarFormatter
 
@@ -59,10 +60,92 @@ def gather_data_from_csv(id):
             satellite_list.append(satellite_instance)
     return satellite_list
 
-def plot_density_altitude(satellite_list):
+def plot_altitude_time(satellite_list):
+    # lists to plot
+    altitude_list = []
+    date_list = []
+
+    satellite_id = get_id(satellite_list[0])
+    # find reference epoch for satellite
+    with open('../data/epochs.csv', 'r') as file:
+        csv_reader = reader(file)
+        # pass over headers
+        next(csv_reader)
+        for row in csv_reader:
+            epoch_id = int(row[0])
+            if epoch_id == satellite_id:
+                reference_epoch = datetime.strptime(row[1], "%Y-%m-%d %H:%M:%S%z")
+
+    # gather data to plot
+    for satellite_instance in satellite_list:
+        date = get_date(satellite_instance)
+        interval = timedelta(days=14)
+        if (reference_epoch - interval) <= date <= (reference_epoch + interval):
+            altitude_list.append(get_altitude(satellite_instance))
+            date_list.append(get_date(satellite_instance))
+
+    fig, ax = plot.subplots(layout='constrained')
+    # x axis (dates)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%D'))
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))
+    ax.xaxis.set_minor_locator(mdates.DayLocator())
+
+    # y axis (density)
+    ax.yaxis.set_major_locator(LinearLocator(10))
+    # ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+
+    # plot data
+    plot.plot(date_list, altitude_list)
+    plot.title("NORAD CAT ID " + str(get_id(satellite_list[0])))
+    plot.ylabel("Altitude (km)")
+    plot.xlabel("Date")
+    plot.show()
+
+'''def plot_nrlmsise_time(satellite_list):
+    # lists to plot
+    nrlmsise00_list = []
+    date_list = []
+
+    satellite_id = get_id(satellite_list[0])
+    # find reference epoch for satellite
+    with open('../data/epochs.csv', 'r') as file:
+        csv_reader = reader(file)
+        # pass over headers
+        next(csv_reader)
+        for row in csv_reader:
+            epoch_id = int(row[0])
+            if epoch_id == satellite_id:
+                reference_epoch = datetime.strptime(row[1], "%Y-%m-%d %H:%M:%S%z")
+
+    # gather data to plot
+    for satellite_instance in satellite_list:
+        date = get_date(satellite_instance)
+        interval = timedelta(days=14)
+        if (reference_epoch - interval) <= date <= (reference_epoch + interval):
+            nrlmsise00_list.append(get_nrlmsise(satellite_instance))
+            date_list.append(get_date(satellite_instance))
+
+    fig, ax = plot.subplots(layout='constrained')
+    # x axis (dates)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%D'))
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))
+    ax.xaxis.set_minor_locator(mdates.DayLocator())
+
+    # y axis (density)
+    ax.yaxis.set_major_locator(LinearLocator(10))
+    # ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+
+    # plot data
+    plot.plot(date_list, nrlmsise00_list)
+    plot.title("NORAD CAT ID " + str(get_id(satellite_list[0])))
+    plot.ylabel("NRLMSISE00 Density (Kg/M^3")
+    plot.xlabel("Date")
+    plot.show()'''
+
+def plot_jb2008_time(satellite_list):
     # lists to plot
     jb2008_list = []
-    altitude_list = []
+    date_list = []
 
     satellite_id = get_id(satellite_list[0])
     # find reference epoch for satellite
@@ -81,13 +164,23 @@ def plot_density_altitude(satellite_list):
         interval = timedelta(days = 14)
         if (reference_epoch - interval) <= date <= (reference_epoch + interval):
                 jb2008_list.append(get_jb2008(satellite_instance))
-                altitude_list.append(get_altitude(satellite_instance))
+                date_list.append(get_date(satellite_instance))
+
+    fig, ax = plot.subplots(layout='constrained')
+    # x axis (dates)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%D'))
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))
+    ax.xaxis.set_minor_locator(mdates.DayLocator())
+
+    # y axis (density)
+    ax.yaxis.set_major_locator(LinearLocator(10))
+    #ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
 
     # plot data
-    plot.scatter(jb2008_list, altitude_list)
-    plot.ylabel("Altitude [km]")
-    plot.xlabel("JB2008 Density")
+    plot.plot(date_list, jb2008_list)
     plot.title("NORAD CAT ID " + str(get_id(satellite_list[0])))
+    plot.ylabel("JB2008 Density (Kg/M^3)")
+    plot.xlabel("Date")
     plot.show()
 
 if __name__ == '__main__':
@@ -99,4 +192,4 @@ if __name__ == '__main__':
         for id in masterlist:
             id = id.strip()
             plot_density_altitude(gather_data_from_csv(id))'''
-    plot_density_altitude(gather_data_from_csv(44235))
+    plot_altitude_time(gather_data_from_csv(44235))
