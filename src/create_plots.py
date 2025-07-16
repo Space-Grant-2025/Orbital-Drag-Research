@@ -6,6 +6,7 @@ import matplotlib
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plot
 from matplotlib.ticker import LinearLocator, ScalarFormatter
+from matplotlib.colors import CSS4_COLORS
 
 class satellite_data:
     def __init__(self, id, date, altitude, velocity, longitude, latitude, jb2008, nrlmsise, local_time):
@@ -73,7 +74,7 @@ def gather_data_from_csv(id):
 
 def gather_f10_data():
     f10_list = []
-    start_date = datetime(2000, 1, 1)
+    start_date = datetime(2020, 1, 1)
     end_date = datetime(2025, 5, 31)
 
     with open('../data/SOLFSMY.TXT', 'r') as file:
@@ -97,7 +98,6 @@ def gather_f10_data():
                 f10_list.append(f10_object)
     return f10_list
 
-
 def plot_f10_time(f10_list):
     dates_list = []
     values_list = []
@@ -117,8 +117,6 @@ def plot_f10_time(f10_list):
     plot.ylabel("F10")
     plot.xlabel("Date (MM/YY)")
     plot.show()
-
-
 
 def plot_reentries_time():
     reentry_list = []
@@ -144,6 +142,46 @@ def plot_reentries_time():
     plot.ylabel("Number of Reentries")
     plot.xlabel("Date (MM/YY)")
     plot.show()
+
+def plot_f10_reentries_time(f10_list):
+    # get reentries
+    reentry_list = []
+    with open('../data/epochs.csv', 'r') as file:
+        csv_reader = reader(file)
+        # pass over headers
+        next(csv_reader)
+
+        for row in csv_reader:
+            if row[5] != '':
+                reentry_date = datetime.strptime(row[5], "%Y-%m-%d %H:%M:%S%z")
+                reentry_list.append(reentry_date)
+
+    # get f10
+    dates_list = []
+    values_list = []
+    for f10 in f10_list:
+        dates_list.append(f10.get_date())
+        values_list.append(f10.get_value())
+
+    fig, reentry_axis = plot.subplots(layout='constrained')
+    f10_axis = reentry_axis.twinx()
+
+    # xaxis and title
+    plot.title("Starlink Reentries 01/01/2020 to 05/31/2025 and F10 Values", color = 'black')
+    reentry_axis.set_xlabel('Date (MM/YY)', color = 'black')
+    reentry_axis.xaxis.set_major_formatter(mdates.DateFormatter('%m/%y'))
+    reentry_axis.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
+    reentry_axis.xaxis.set_minor_locator(mdates.MonthLocator(interval=1))
+
+    # reentry axis
+    reentry_axis.set_ylabel('Number of Reentries', color = 'black')
+    reentry_axis.hist(reentry_list, bins=53, color = 'gray')
+
+    f10_axis.set_ylabel("F10 Values", color = 'black')
+    f10_axis.plot(dates_list, values_list, color = 'black')
+
+    plot.show()
+
 
 def plot_altitude_time(satellite_list):
     # lists to plot
@@ -278,5 +316,5 @@ if __name__ == '__main__':
             id = id.strip()
             plot_density_altitude(gather_data_from_csv(id))'''
     #plot_altitude_time(gather_data_from_csv(44235))
-    plot_reentries_time()
+    plot_f10_reentries_time(gather_f10_data())
     #plot_f10_time(gather_f10_data())
