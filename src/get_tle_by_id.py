@@ -1,3 +1,4 @@
+import pyautogui
 import requests
 import configparser
 import datetime
@@ -10,7 +11,8 @@ def get_tle(id):
     uri_base = 'https://www.space-track.org'
     request_login = '/ajaxauth/login'
     request_cmd_action = '/basicspacedata/query'
-    request_find_starlinks = '/class/gp_history/NORAD_CAT_ID/' + str(id) + '/orderby/TLE_LINE1%20ASC/format/tle'
+    request_find_starlinks = '/class/gp_history/NORAD_CAT_ID/' + str(id) + '/orderby/TLE_LINE1%20ASC/'
+    #request_find_starlinks = '/class/gp_history/NORAD_CAT_ID/' + str(id) + '/orderby/TLE_LINE1%20ASC/format/json'
 
     # login credentials read in from the .ini file
     config = configparser.ConfigParser()
@@ -35,13 +37,17 @@ def get_tle(id):
 
         # send http packet asking for starlink data and save the response (the tle data)
         tle = session.get(uri_base + request_cmd_action + request_find_starlinks)
-
         return tle.text
 
 # given tle data, add it to txt file
-def write_tle_to_txt(tle, id):
+def write_tle_to_file(text, id):
     with open("../data/tles/tle_" + str(id) + ".txt", "w") as file:
-        file.write(tle)
+        for line in text.split('},{'):
+            line_arr = line.split(',')
+            tle0 = line_arr[37][12:].strip("\"")
+            tle1 = line_arr[38][12:].strip("\"")
+            tle2 = line_arr[39][12:].strip("\"")
+            file.write(f'{tle0}\n{tle1}\n{tle2}\n')
 
 # loops through the norad ids in the txt file
 def main():
@@ -65,7 +71,10 @@ def main():
                 continue
 
             tle = get_tle(id)
-            write_tle_to_txt(tle, id)
+            write_tle_to_file(tle, id)
+
+            # jitter to keep computer awake
+            pyautogui.press('shift')
 
             # progress tracker
             print(f'{count}: {id}')

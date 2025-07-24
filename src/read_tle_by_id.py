@@ -16,12 +16,13 @@ grav = 6.6743e-11
 earth_mass = 5.9722e24
 
 class tle:
-    def __init__(self, id, line1, line2):
+    def __init__(self, id, line0, line1, line2):
         # ephem object reads in given tle data
         ephem_satellite = ephem.readtle('NORAD' + str(id), line1, line2)
 
         # assign values
         self.id = id
+        self.name = line0[1:]
         self.tle_line1 = line1
         self.tle_line2 = line2
 
@@ -41,6 +42,8 @@ class tle:
     # getters
     def get_id(self):
         return self.id
+    def get_name(self):
+        return self.name
     def get_tle_line1(self):
         return self.tle_line1
     def get_tle_line2(self):
@@ -144,22 +147,23 @@ def process_tle_data(id):
         lines = data.readlines()[:]
     data.close()
 
-    for x in range(0, len(lines), 2):
+    for x in range(0, len(lines), 3):
         # create tle object and add to list
-        line1 = lines[x].strip("\n")
-        line2 = lines[x + 1].strip("\n")
-        data = tle(id, line1, line2)
+        line0 = lines[x].strip("\n")
+        line1 = lines[x + 1].strip("\n")
+        line2 = lines[x + 2].strip("\n")
+        data = tle(id, line0, line1, line2)
         tle_list.append(data)
     return tle_list
 
 def write_data_to_csv(id, tle_list):
     with open('../data/human_readable/tle_' + str(id) + '.csv', 'w') as file:
 
-        file.write("DATE, ALTITUDE, VELOCITY, LATITUDE, LONGITUDE, JB2008 DENSITY, NRLMSISE00 DENSITY, LOCAL TIME\n")
+        file.write("DATE, NAME, ALTITUDE, VELOCITY, LATITUDE, LONGITUDE, JB2008 DENSITY, NRLMSISE00 DENSITY, LOCAL TIME\n")
 
         for tle in tle_list:
             # write values to file
-            file.write(f'{str(tle.get_date())},{tle.get_altitude()},{tle.get_velocity()},{tle.get_latitude()},{tle.get_longitude()},{get_jb2008_density(tle)}, {get_nrlmsise_density(tle)}, {get_local_time(tle.get_day_of_year(), tle.get_longitude(), tle.get_utc())}\n')
+            file.write(f'{str(tle.get_date())},{tle.get_name()},{tle.get_altitude()},{tle.get_velocity()},{tle.get_latitude()},{tle.get_longitude()},{get_jb2008_density(tle)}, {get_nrlmsise_density(tle)}, {get_local_time(tle.get_day_of_year(), tle.get_longitude(), tle.get_utc())}\n')
 
 def main():
     start_time = datetime.datetime.now()
