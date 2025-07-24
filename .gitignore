@@ -4,6 +4,7 @@ SLTrack.ini
 /data/tles
 /data/human_readable
 /data/dst
+/data/graphs
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
