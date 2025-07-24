@@ -65,6 +65,6 @@ def add_oliveira_data_to_masterlist():
             masterlist.write(id + "\n")
     print("Added Oliveira data to masterlist\n")
 
-run_check_csv_txt()
 check_oliveira_data_against_masterlist()
 add_oliveira_data_to_masterlist()
+run_check_csv_txt()
