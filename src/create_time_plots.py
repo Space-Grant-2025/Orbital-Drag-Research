@@ -4,7 +4,7 @@ from datetime import timedelta, datetime
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plot
 from matplotlib.ticker import LinearLocator
-from satellite_data import *
+from satellite_classes import *
 
 def get_reference_epoch(id):
     reference_epoch = ""
@@ -18,7 +18,7 @@ def get_reference_epoch(id):
             epoch_id = int(row[0])
             if epoch_id == id:
                 if row[1] is not None:
-                    reference_epoch = datetime.strptime(row[1], "%Y-%m-%d %H:%M:%S%z")
+                    reference_epoch = datetime.datetime.strptime(row[1], "%Y-%m-%d %H:%M:%S%z")
     return reference_epoch
 
 def plot_altitude_time(satellite_list):
@@ -77,7 +77,7 @@ def plot_jb2008_time(satellite_list):
             epoch_id = int(row[0])
             if epoch_id == satellite_id:
                 if row[1] is not None:
-                    reference_epoch = datetime.strptime(row[1], "%Y-%m-%d %H:%M:%S%z")
+                    reference_epoch = datetime.datetime.strptime(row[1], "%Y-%m-%d %H:%M:%S%z")
 
     # gather data to plot
     for satellite_instance in satellite_list:
@@ -123,7 +123,7 @@ def plot_nrlmsise_time(satellite_list):
             epoch_id = int(row[0])
             if epoch_id == satellite_id:
                 if row[1] is not None:
-                    reference_epoch = datetime.strptime(row[1], "%Y-%m-%d %H:%M:%S%z")
+                    reference_epoch = datetime.datetime.strptime(row[1], "%Y-%m-%d %H:%M:%S%z")
 
     # gather data to plot
     for satellite_instance in satellite_list:
