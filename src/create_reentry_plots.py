@@ -1,7 +1,8 @@
+from datetime import datetime
 import datetime
 import matplotlib.pyplot as plot
 from matplotlib import dates as mdates
-from satellite_data import *
+from satellite_classes import *
 import re
 import os
 
@@ -18,8 +19,8 @@ class f10:
 
 def gather_f10_data():
     f10_list = []
-    start_date = datetime(2020, 1, 1)
-    end_date = datetime(2025, 5, 31)
+    start_date = datetime.date(2020, 1, 1)
+    end_date = datetime.date(2025, 5, 31)
 
     with open('../data/SOLFSMY.TXT', 'r') as file:
         # pass over headers 4x
@@ -34,7 +35,7 @@ def gather_f10_data():
             day = data[2]
 
             f10_value = float(data[4])
-            date = datetime.strptime(f"{year}-{day}", "%Y-%j")
+            date = datetime.datetime.strptime(f"{year}-{day}", "%Y-%j").date()
 
             if start_date < date < end_date:
                 # create object and add to list
@@ -97,7 +98,7 @@ def plot_f10_reentries_time(f10_list):
 
         for row in csv_reader:
             if row[5] != '':
-                reentry_date = datetime.strptime(row[5], "%Y-%m-%d %H:%M:%S%z")
+                reentry_date = datetime.datetime.strptime(row[5], "%Y-%m-%d %H:%M:%S%z")
                 reentry_list.append(reentry_date)
 
     # get f10
