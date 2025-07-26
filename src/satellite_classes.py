@@ -1,6 +1,7 @@
 from csv import reader
 from datetime import datetime
 import datetime
+from create_reentry_plots import f10, gather_f10_data
 
 class satellite_reentry:
     def __init__(self, id, date, name, altitude, velocity, longitude, latitude, jb2008, nrlmsise, local_time):

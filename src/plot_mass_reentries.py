@@ -1,4 +1,4 @@
-from masses import *
+from satellite_classes import *
 from matplotlib import pyplot as plot
 
 def plot_starlink_mass_reentry(satellite_list):

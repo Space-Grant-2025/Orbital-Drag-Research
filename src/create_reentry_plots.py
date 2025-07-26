@@ -17,10 +17,8 @@ class f10:
     def get_value(self):
         return self.value
 
-def gather_f10_data():
+def gather_f10_data(start_date, end_date):
     f10_list = []
-    start_date = datetime.date(2020, 1, 1)
-    end_date = datetime.date(2025, 5, 31)
 
     with open('../data/SOLFSMY.TXT', 'r') as file:
         # pass over headers 4x
@@ -132,4 +130,4 @@ if __name__ == '__main__':
     if not os.path.exists("../data/graphs/"):
         os.makedirs("../data/graphs/")
 
-    plot_f10_reentries_time(gather_f10_data())
+    plot_f10_reentries_time(gather_f10_data(datetime.date(2020, 1, 1), datetime.date(2025, 5, 31)))
