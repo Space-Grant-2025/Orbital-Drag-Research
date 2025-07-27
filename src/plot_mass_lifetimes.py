@@ -62,37 +62,6 @@ def plot_all_recent_mass_lifetime(satellite_list):
     plot.xlabel("Mass (kg)")
     plot.savefig('../data/mass_graphs/recent_mass_lifetimes.png', format='png')
 
-# ask about reentry issue
-def plot_all_launch_masses(satellite_list):
-    start_year = 1957
-    end_year = 2025
-
-    # generate list of years to add mass_graphs to
-    year_list = []
-    for x in range(end_year - start_year + 1):
-        year_list.append(start_year + x)
-
-    # initialize dictionary
-    year_masses = dict()
-    for year in year_list:
-        year_masses[year] = 0
-
-    # fill with mass_graphs (just launch dates)
-    for satellite in satellite_list:
-        if get_dry_mass(satellite) is not None and get_launch_date(satellite) is not None:
-            mass = get_dry_mass(satellite)
-            launch_year = int(get_launch_date(satellite).year)
-
-            year_masses[launch_year] += mass
-
-    mass_list = year_masses.values()
-
-    fig, ax = plot.subplots(layout='constrained')
-    plot.bar(year_list, mass_list)
-    plot.title("Mass Launched by Year")
-    plot.ylabel("Mass (kg)")
-    plot.xlabel("Year")
-    plot.savefig('../data/mass_graphs/mass_launched.png', format='png')
 
 def get_mass_years(satellite_list, start_year, end_year):
     # generate list of years to add mass_graphs to
@@ -120,26 +89,6 @@ def get_mass_years(satellite_list, start_year, end_year):
 
     mass_list = year_masses.values()
     return mass_list, year_list
-
-def get_num_years(satellite_list, start_year, end_year):
-    # generate list of years to add mass_graphs to
-    year_list = []
-    for x in range(end_year - start_year + 1):
-        year_list.append(start_year + x)
-
-    # initialize dictionary
-    year_nums = dict()
-    for year in year_list:
-        year_nums[year] = 0
-
-    # fill with mass_graphs
-    for satellite in satellite_list:
-        if get_launch_date(satellite) is not None:
-            launch_year = int(get_launch_date(satellite).year)
-            year_nums[launch_year] += 1
-
-    nums_list = year_nums.values()
-    return nums_list, year_list
 
 def get_mass_years_no_starlink(satellite_list, start_year, end_year):
     # generate list of years to add mass_graphs to
@@ -184,12 +133,6 @@ def plot_all_existing_masses():
     plot.xlabel("Year")
     plot.savefig('../data/mass_graphs/mass_in_space.png', format='png')
 
-def plot_number_launched(satellite_list):
-    nums_list, year_list = get_num_years(get_satellite_list("all"), 1957, 2025)
-    fig, ax = plot.subplots(layout='constrained')
-    plot.bar(year_list, nums_list)
-    plot.show()
-
 def plot_stacked_existing_masses_f10(f10_list):
     all_mass_list, all_year_list = get_mass_years_no_starlink(get_satellite_list("all"), 1957, 2025)
     starlink_mass_list, starlink_year_list = get_mass_years(get_satellite_list("starlink"), 1957, 2025)
@@ -228,4 +171,3 @@ if __name__ == '__main__':
     plot_all_existing_masses()'''
 
     #plot_stacked_existing_masses_f10(gather_f10_data(datetime.date(1957, 1, 1), datetime.date(2025, 5, 31)))
-    plot_number_launched(get_satellite_list("all"))
