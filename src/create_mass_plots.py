@@ -1,8 +1,9 @@
 import csv
 from matplotlib import pyplot as plot
 import datetime
-
+from create_reentry_plots import gather_f10_data
 from matplotlib.ticker import ScalarFormatter
+from special_tools import *
 
 
 class satellite_mass_lifetime:
@@ -13,6 +14,9 @@ class satellite_mass_lifetime:
         self.reentry_date = reentry_date
         self.mass = mass
         self.lifetime = lifetime
+
+# TODO: increase lengths of x axes
+# TODO: add legends
 
 # getters
 def get_id(self):
@@ -109,6 +113,20 @@ def get_year_dict(start_year, end_year):
     for year in year_list:
         year_nums[year] = 0
     return year_nums
+
+def get_average_f10(start_year, end_year):
+    f10_dates, f10_values = gather_f10_data(datetime.date(start_year, 1, 1), datetime.date(end_year, 12, 31))
+    # to fill with values
+    f10_dict = get_year_dict(start_year, end_year)
+
+    f10_time_floats = []
+    for x in range(len(f10_values)):
+        year = f10_dates[x].year
+        day = day2doy(year, f10_dates[x].month, f10_dates[x].day)
+        f10_time_floats.append(year + day / 365)
+
+    f10_values = smooth(f10_values, 30)
+    return f10_values, f10_time_floats
 
 # fills with lifetime
 def fill_dict_sat_nums(satellite_list, start_year, end_year):
@@ -264,7 +282,6 @@ def plot_satellites_in_space(start_year, end_year):
     plot.xlabel("Year")
     plot.savefig('../data/mass_graphs/satellites_in_space.png', format='png')
 
-# TODO: add twinx
 def plot_stacked_satellites_in_space(start_year, end_year):
     other_list = get_not_starlink_list(start_year, end_year)
     starlink_list = get_starlink_list(start_year, end_year)
@@ -282,6 +299,30 @@ def plot_stacked_satellites_in_space(start_year, end_year):
     plot.xlabel("Year")
     plot.savefig('../data/mass_graphs/stacked_satellites_in_space.png', format='png')
 
+def plot_stacked_satellites_in_space_f10(start_year, end_year):
+    other_list = get_not_starlink_list(start_year, end_year)
+    starlink_list = get_starlink_list(start_year, end_year)
+
+    # get plot dict
+    other_nums, other_years = fill_dict_sat_nums(other_list, start_year, end_year)
+    starlink_nums, starlink_years = fill_dict_sat_nums(starlink_list, start_year, end_year)
+    f10_values, f10_years = get_average_f10(start_year, end_year)
+
+    fig, sat_axis = plot.subplots(layout='constrained')
+    f10_axis = sat_axis.twinx()
+
+    plot.title("Satellites in Space by Year and F10 Values")
+    sat_axis.set_xlabel("Year")
+    sat_axis.set_ylabel("Number of Satellites")
+
+    sat_axis.bar(other_years, other_nums, color='grey')
+    sat_axis.bar(starlink_years, starlink_nums, bottom = other_nums, color='blue')
+
+    f10_axis.set_ylabel("F10 Values")
+    f10_axis.plot(f10_years, f10_values, color='black')
+
+    plot.savefig('../data/mass_graphs/stacked_satellites_in_space_f10.png', format='png')
+
 # mass in space by year
 def plot_mass_in_space(start_year, end_year):
     satellite_list = get_satellite_list(start_year, end_year)
@@ -295,7 +336,6 @@ def plot_mass_in_space(start_year, end_year):
     plot.xlabel("Year")
     plot.savefig('../data/mass_graphs/mass_in_space.png', format='png')
 
-# TODO: add twinx
 def plot_stacked_mass_in_space(start_year, end_year):
     other_list = get_not_starlink_list(start_year, end_year)
     starlink_list = get_starlink_list(start_year, end_year)
@@ -312,8 +352,34 @@ def plot_stacked_mass_in_space(start_year, end_year):
     ax.set_xlabel("Year")
     plot.savefig('../data/mass_graphs/stacked_mass_in_space.png', format='png')
 
+# TODO: add twinx
+def plot_stacked_mass_in_space_f10(start_year, end_year):
+    other_list = get_not_starlink_list(start_year, end_year)
+    starlink_list = get_starlink_list(start_year, end_year)
+
+    other_mass, other_years = fill_dict_mass_nums(other_list, start_year, end_year)
+    starlink_mass, starlink_years = fill_dict_mass_nums(starlink_list, start_year, end_year)
+
+    f10_values, f10_years = get_average_f10(start_year, end_year)
+
+
+    fig, mass_axis = plot.subplots(layout='constrained')
+    f10_axis = mass_axis.twinx()
+
+    plot.title("Mass in Space by Year")
+    mass_axis.set_ylabel("Mass (metric tonnes)")
+    mass_axis.set_xlabel("Year")
+
+    mass_axis.bar(other_years, other_mass, color='grey')
+    mass_axis.bar(starlink_years, starlink_mass, bottom=other_mass, color='blue')
+
+    f10_axis.set_ylabel("F10 Values")
+    f10_axis.plot(f10_years, f10_values, color='black')
+
+    plot.savefig('../data/mass_graphs/stacked_mass_in_space_f10.png', format='png')
+
 if __name__ == '__main__':
-    plot_launches_per_year(1957, 2025)
+    '''plot_launches_per_year(1957, 2025)
     plot_stacked_launches_per_year(1957, 2025)
 
     plot_mass_launched_per_year(1957, 2025)
@@ -324,9 +390,8 @@ if __name__ == '__main__':
     plot_satellites_in_space(1957, 2025)
     plot_stacked_satellites_in_space(1957, 2025)
 
-    plot_mass_lifetime(1957, 2025)
+    plot_mass_lifetime(1957, 2025)'''
 
-    print(f"Satellite list: {len(get_satellite_list(1957, 2025))}")
-    print(f"Starlink list: {len(get_starlink_list(1957, 2025))}")
-    print(f"Not Starlink list: {len(get_not_starlink_list(1957, 2025))}")
-    print(len(get_starlink_list(1957, 2025)) + len(get_not_starlink_list(1957, 2025)))
+    plot_stacked_satellites_in_space_f10(1957, 2025)
+    plot_stacked_mass_in_space_f10(1957, 2025)
+

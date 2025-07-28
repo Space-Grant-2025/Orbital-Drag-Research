@@ -6,7 +6,7 @@ from satellite_classes import *
 import re
 import os
 
-class f10:
+class f10_data:
     def __init__(self, date, value):
         self.date = date
         self.value = value
@@ -37,11 +37,8 @@ def gather_f10_data(start_date, end_date):
 
             if start_date < date < end_date:
                 # create object and add to list
-                f10_object = f10(date, f10_value)
+                f10_object = f10_data(date, f10_value)
                 f10_list.append(f10_object)
-    return f10_list
-
-def plot_f10_time(f10_list):
     dates_list = []
     values_list = []
 
@@ -49,17 +46,22 @@ def plot_f10_time(f10_list):
         dates_list.append(f10.get_date())
         values_list.append(f10.get_value())
 
+    return dates_list, values_list
+
+def plot_f10_time(start_date, end_date):
+    dates_list, values_list = gather_f10_data(start_date, end_date)
+
     fig, ax = plot.subplots(layout='constrained')
     # x axis (dates)
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%y'))
+    '''ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%y'))
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
-    ax.xaxis.set_minor_locator(mdates.MonthLocator(interval=1))
+    ax.xaxis.set_minor_locator(mdates.MonthLocator(interval=1))'''
 
-    plot.plot(dates_list, values_list)
+    plot.scatter(dates_list, values_list, s = 1)
     plot.title("F10 Values by Time")
     plot.ylabel("F10")
     plot.xlabel("Date (MM/YY)")
-    plot.show()
+    plot.savefig("../data/graphs/f10_time.png", format="png")
 
 def plot_reentries_time():
     reentry_list = []
@@ -70,7 +72,7 @@ def plot_reentries_time():
 
         for row in csv_reader:
             if row[5] != '':
-                reentry_date = datetime.strptime(row[5], "%Y-%m-%d %H:%M:%S%z")
+                reentry_date = datetime.datetime.strptime(row[5], "%Y-%m-%d %H:%M:%S%z")
                 reentry_list.append(reentry_date)
 
     fig, ax = plot.subplots(layout='constrained')
@@ -84,9 +86,9 @@ def plot_reentries_time():
     plot.title("Starlink Reentries 01/01/2020 to 05/31/2025")
     plot.ylabel("Number of Reentries")
     plot.xlabel("Date (MM/YY)")
-    plot.show()
+    plot.savefig("../data/graphs/reentries_time.png")
 
-def plot_f10_reentries_time(f10_list):
+def plot_f10_reentries_time(start_date, end_date):
     # get reentries
     reentry_list = []
     with open('../data/epochs.csv', 'r') as file:
@@ -100,11 +102,7 @@ def plot_f10_reentries_time(f10_list):
                 reentry_list.append(reentry_date)
 
     # get f10
-    dates_list = []
-    values_list = []
-    for f10 in f10_list:
-        dates_list.append(f10.get_date())
-        values_list.append(f10.get_value())
+    f10_dates, f10_values = gather_f10_data(start_date, end_date)
 
     fig, reentry_axis = plot.subplots(layout='constrained')
     f10_axis = reentry_axis.twinx()
@@ -118,10 +116,10 @@ def plot_f10_reentries_time(f10_list):
 
     # reentry axis
     reentry_axis.set_ylabel('Number of Reentries', color = 'black')
-    reentry_axis.hist(reentry_list, bins=53, color = 'gray')
+    reentry_axis.hist(reentry_list, bins=53, color = 'grey')
 
     f10_axis.set_ylabel("F10 Values", color = 'black')
-    f10_axis.plot(dates_list, values_list, color = 'black')
+    f10_axis.plot(f10_dates, f10_values, color = 'black')
 
     plot.savefig('../data/graphs/f10_reentries_time.png', format='png')
     print("Plotted F10-reentries-time")
@@ -130,4 +128,6 @@ if __name__ == '__main__':
     if not os.path.exists("../data/graphs/"):
         os.makedirs("../data/graphs/")
 
-    plot_f10_reentries_time(gather_f10_data(datetime.date(2020, 1, 1), datetime.date(2025, 5, 31)))
+    plot_f10_time(datetime.date(1957, 1, 1), datetime.date(2025, 12, 31))
+    '''plot_reentries_time()
+    plot_f10_reentries_time(datetime.date(2020, 1, 1), datetime.date(2025, 1, 1))'''
