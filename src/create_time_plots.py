@@ -152,6 +152,37 @@ def plot_nrlmsise_time(satellite_list):
     plot.savefig('../data/reentry_graphs/nrlmsise_time/' + str(satellite_id) + '_nrlmsise_time.png', format='png')
     plot.close()
 
+def plot_lifetime(satellite_list):
+    # lists to plot
+    altitude_list = []
+    date_list = []
+
+    satellite_id = get_id(satellite_list[0])
+
+    # gather data to plot
+    for satellite_instance in satellite_list:
+        altitude = float(get_altitude(satellite_instance))
+        date = get_date(satellite_instance)
+        altitude_list.append(altitude)
+        date_list.append(date)
+
+    # plot data
+    fig, ax = plot.subplots(layout='constrained')
+    # x axis (dates)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m'))
+
+    # y axis (density)
+    #ax.yaxis.set_major_locator(LinearLocator(10))
+    # ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+
+    # plot data
+    plot.plot(date_list, altitude_list)
+    plot.title("NORAD CAT ID " + str(satellite_id))
+    plot.ylabel("Altitude (km)")
+    plot.xlabel("Date (YY-MM)")
+    plot.savefig('../data/lifetime_profiles/' + str(satellite_id) + '_lifetime_profile.png', format='png')
+    plot.close()
+
 def run_altitude_time():
     if not os.path.exists("../data/reentry_graphs/altitude_time/"):
         os.makedirs("../data/reentry_graphs/altitude_time/")
@@ -217,10 +248,35 @@ def run_nrlmsise_time():
 
     print("Finished NRLMSISE00-time")
 
+def run_lifetime():
+
+    with open('../data/reentry_ids_masterlist.txt', 'r') as list:
+
+        # pass over headers
+        next(list)
+        # count of satellites
+        count = 1
+
+        # create plot for each id
+        for id in list:
+            id = id.strip()
+
+            if os.path.exists("../data/lifetime_profiles/" + str(id) + "_lifetime_profile.png"):
+                continue
+
+            plot_lifetime(gather_data_from_csv(id))
+            print(f"{count}: {id}")
+            count += 1
+    print("Finished lifetime profiles")
+
+
 if __name__ == '__main__':
     if not os.path.exists("../data/reentry_graphs/"):
         os.makedirs("../data/reentry_graphs/")
+    if not os.path.exists("../data/lifetime_profiles/"):
+        os.makedirs("../data/lifetime_profiles/")
 
     run_altitude_time()
     run_jb2008_time()
     run_nrlmsise_time()
+    run_lifetime()

@@ -5,6 +5,7 @@ SLTrack.ini
 /data/human_readable
 /data/dst
 /data/reentry_graphs
+/data/lifetime_profiles
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
