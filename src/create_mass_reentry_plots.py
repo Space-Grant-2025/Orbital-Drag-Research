@@ -1,9 +1,10 @@
-import csv
+from csv import reader
 from matplotlib import pyplot as plot
 import datetime
-from create_reentry_plots import gather_f10_data
+from f10_data import *
 from matplotlib.ticker import ScalarFormatter
 from special_tools import *
+from matplotlib import dates as mdates
 
 
 class satellite_mass_lifetime:
@@ -114,19 +115,66 @@ def get_year_dict(start_year, end_year):
         year_nums[year] = 0
     return year_nums
 
-def get_average_f10(start_year, end_year):
-    f10_dates, f10_values = gather_f10_data(datetime.date(start_year, 1, 1), datetime.date(end_year, 12, 31))
-    # to fill with values
-    f10_dict = get_year_dict(start_year, end_year)
+def plot_reentries_time():
+    reentry_list = []
+    with open('../data/epochs.csv', 'r') as file:
+        csv_reader = reader(file)
+        # pass over headers
+        next(csv_reader)
 
-    f10_time_floats = []
-    for x in range(len(f10_values)):
-        year = f10_dates[x].year
-        day = day2doy(year, f10_dates[x].month, f10_dates[x].day)
-        f10_time_floats.append(year + day / 365)
+        for row in csv_reader:
+            if row[5] != '':
+                reentry_date = datetime.datetime.strptime(row[5], "%Y-%m-%d %H:%M:%S%z")
+                reentry_list.append(reentry_date)
 
-    f10_values = smooth(f10_values, 30)
-    return f10_values, f10_time_floats
+    fig, ax = plot.subplots(layout='constrained')
+    # x axis (dates)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%y'))
+    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
+    ax.xaxis.set_minor_locator(mdates.MonthLocator(interval=1))
+
+    # 53 months in 4 years and 5 months
+    plot.hist(reentry_list, bins=53)
+    plot.title("Starlink Reentries 01/01/2020 to 05/31/2025")
+    plot.ylabel("Number of Reentries")
+    plot.xlabel("Date (MM/YY)")
+    plot.savefig("../data/reentry_graphs/reentries_time.png")
+
+def plot_f10_reentries_time(start_date, end_date):
+    # get reentries
+    reentry_list = []
+    with open('../data/epochs.csv', 'r') as file:
+        csv_reader = reader(file)
+        # pass over headers
+        next(csv_reader)
+
+        for row in csv_reader:
+            if row[5] != '':
+                reentry_date = datetime.datetime.strptime(row[5], "%Y-%m-%d %H:%M:%S%z")
+                reentry_list.append(reentry_date)
+
+    # get f10
+    f10_dates, f10_values = get_data_from_f10_csv(start_date, end_date)
+
+    fig, reentry_axis = plot.subplots(layout='constrained')
+    f10_axis = reentry_axis.twinx()
+
+    # xaxis and title
+    plot.title("Starlink Reentries 01/01/2020 to 05/31/2025 and F10 Values", color = 'black')
+    reentry_axis.set_xlabel('Date (MM/YY)', color = 'black')
+    reentry_axis.xaxis.set_major_formatter(mdates.DateFormatter('%m/%y'))
+    reentry_axis.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
+    reentry_axis.xaxis.set_minor_locator(mdates.MonthLocator(interval=1))
+
+    # reentry axis
+    reentry_axis.set_ylabel('Number of Reentries', color = 'black')
+    reentry_axis.hist(reentry_list, bins=53, color = 'grey')
+
+    f10_axis.set_ylabel("F10 Values", color = 'black')
+    f10_axis.plot(f10_dates, f10_values, color = 'black')
+
+    plot.savefig('../data/reentry_graphs/f10_reentries_time.png', format='png')
+    print("Plotted F10-reentries-time")
 
 # fills with lifetime
 def fill_dict_sat_nums(satellite_list, start_year, end_year):
@@ -209,7 +257,6 @@ def plot_mass_lifetime(start_year, end_year):
         if lifetime is not None and mass is not None:
             starlink_mass_list.append(mass)
             starlink_lifetime_list.append(lifetime.days / 365)
-
 
     fig, ax = plot.subplots(layout='constrained')
     plot.scatter(other_mass_list, other_lifetime_list, s = 1, color='grey')

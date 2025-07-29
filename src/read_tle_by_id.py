@@ -142,7 +142,7 @@ def get_date_from_tle(line1):
 # creates flight data for date in given tle and adds the values to lists
 def process_tle_data(id):
     tle_list = []
-    with open('../data/tles/tle_' + str(id) + '.txt') as data:
+    with open('../data/starlink_tles/tle_' + str(id) + '.txt') as data:
         # list of all the lines
         lines = data.readlines()[:]
     data.close()

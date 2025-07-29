@@ -56,7 +56,7 @@ def plot_altitude_time(satellite_list):
     plot.title("NORAD CAT ID " + str(satellite_id))
     plot.ylabel("Altitude (km)")
     plot.xlabel("Date")
-    plot.savefig('../data/graphs/altitude_time/' + str(satellite_id) + '_altitude_time.png', format='png')
+    plot.savefig('../data/reentry_graphs/altitude_time/' + str(satellite_id) + '_altitude_time.png', format='png')
     plot.close()
 
 def plot_jb2008_time(satellite_list):
@@ -102,7 +102,7 @@ def plot_jb2008_time(satellite_list):
     plot.title("NORAD CAT ID " + str(get_id(satellite_list[0])))
     plot.ylabel("JB2008 Density (Kg/M^3)")
     plot.xlabel("Date")
-    plot.savefig('../data/graphs/jb2008_time/' + str(satellite_id) + '_jb2008_time.png', format='png')
+    plot.savefig('../data/reentry_graphs/jb2008_time/' + str(satellite_id) + '_jb2008_time.png', format='png')
     plot.close()
 
 def plot_nrlmsise_time(satellite_list):
@@ -149,12 +149,12 @@ def plot_nrlmsise_time(satellite_list):
     plot.title("NORAD CAT ID " + str(get_id(satellite_list[0])))
     plot.ylabel("NRLMSISE00 Density (Kg/M^3)")
     plot.xlabel("Date")
-    plot.savefig('../data/graphs/nrlmsise_time/' + str(satellite_id) + '_nrlmsise_time.png', format='png')
+    plot.savefig('../data/reentry_graphs/nrlmsise_time/' + str(satellite_id) + '_nrlmsise_time.png', format='png')
     plot.close()
 
 def run_altitude_time():
-    if not os.path.exists("../data/graphs/altitude_time/"):
-        os.makedirs("../data/graphs/altitude_time/")
+    if not os.path.exists("../data/reentry_graphs/altitude_time/"):
+        os.makedirs("../data/reentry_graphs/altitude_time/")
 
     with open('../data/reentry_ids_masterlist.txt', 'r') as masterlist:
         count = 1
@@ -165,7 +165,7 @@ def run_altitude_time():
         for id in masterlist:
             id = int(id.strip())
 
-            if os.path.exists("../data/graphs/altitude_time/" + str(id) + "_altitude_time.png"):
+            if os.path.exists("../data/reentry_graphs/altitude_time/" + str(id) + "_altitude_time.png"):
                 continue
 
             plot_altitude_time(gather_data_from_csv(id))
@@ -174,8 +174,8 @@ def run_altitude_time():
     print("Finished altitude-time")
 
 def run_jb2008_time():
-    if not os.path.exists("../data/graphs/jb2008_time/"):
-        os.makedirs("../data/graphs/jb2008_time/")
+    if not os.path.exists("../data/reentry_graphs/jb2008_time/"):
+        os.makedirs("../data/reentry_graphs/jb2008_time/")
 
     with open('../data/reentry_ids_masterlist.txt', 'r') as masterlist:
         count = 1
@@ -186,7 +186,7 @@ def run_jb2008_time():
         for id in masterlist:
             id = int(id.strip())
 
-            if os.path.exists("../data/graphs/jb2008_time/" + str(id) + "_jb2008_time.png"):
+            if os.path.exists("../data/reentry_graphs/jb2008_time/" + str(id) + "_jb2008_time.png"):
                 continue
 
             plot_jb2008_time(gather_data_from_csv(id))
@@ -196,8 +196,8 @@ def run_jb2008_time():
     print("Finished JB2008-time")
 
 def run_nrlmsise_time():
-    if not os.path.exists("../data/graphs/nrlmsise_time/"):
-        os.makedirs("../data/graphs/nrlmsise_time/")
+    if not os.path.exists("../data/reentry_graphs/nrlmsise_time/"):
+        os.makedirs("../data/reentry_graphs/nrlmsise_time/")
 
     with open('../data/reentry_ids_masterlist.txt', 'r') as masterlist:
         count = 1
@@ -208,7 +208,7 @@ def run_nrlmsise_time():
         for id in masterlist:
             id = int(id.strip())
 
-            if os.path.exists("../data/graphs/nrlmsise_time/" + str(id) + "_nrlmsise_time.png"):
+            if os.path.exists("../data/reentry_graphs/nrlmsise_time/" + str(id) + "_nrlmsise_time.png"):
                 continue
 
             plot_nrlmsise_time(gather_data_from_csv(id))
@@ -218,8 +218,8 @@ def run_nrlmsise_time():
     print("Finished NRLMSISE00-time")
 
 if __name__ == '__main__':
-    if not os.path.exists("../data/graphs/"):
-        os.makedirs("../data/graphs/")
+    if not os.path.exists("../data/reentry_graphs/"):
+        os.makedirs("../data/reentry_graphs/")
 
     run_altitude_time()
     run_jb2008_time()

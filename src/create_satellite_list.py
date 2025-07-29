@@ -3,12 +3,13 @@ import datetime
 import pyautogui
 
 class satellite_mass:
-    def __init__(self, id, name, launch_date, reentry_date, mass):
+    def __init__(self, id, name, launch_date, reentry_date, mass, orbit):
         self.id = id
         self.name = name
         self.launch_date = launch_date
         self.reentry_date = reentry_date
         self.mass = mass
+        self.orbit = orbit
 
 # getters
 def get_id(self):
@@ -23,6 +24,8 @@ def get_mass(self):
     return self.mass
 def get_lifetime(self):
     return self.lifetime
+def get_orbit(self):
+    return self.orbit
 
 def create_satellite_list():
     satellite_list = []
@@ -60,9 +63,10 @@ def create_satellite_list():
                         if satellite_reentry_date != '':
                             satellite_reentry_date = create_date(row[11])
                         if row[19].isdigit():
-                            mass = int(row[19])
+                            mass = float(row[21])
+                        orbit = row[39]
             print(satellite_launch_date)
-            satellite = satellite_mass(satellite_id, name, satellite_launch_date, satellite_reentry_date, mass)
+            satellite = satellite_mass(satellite_id, name, satellite_launch_date, satellite_reentry_date, mass, orbit)
             satellite_list.append(satellite)
             pyautogui.press('shift')
     return satellite_list
@@ -88,9 +92,9 @@ def create_date(date_str):
 def write_satellite_list_to_file():
     satellite_list = create_satellite_list()
     with open('../data/satellite_masses_list.csv', 'w') as satellite_file:
-        satellite_file.write("NORAD CAT ID,NAME,LAUNCH DATE,REENTRY DATE,DRY MASS (KG)\n")
+        satellite_file.write("NORAD CAT ID,NAME,LAUNCH DATE,REENTRY DATE,DRY MASS (KG), ORBIT\n")
         for satellite in satellite_list:
-            satellite_file.write(f"{get_id(satellite)},{get_name(satellite)},{get_launch_date(satellite)},{get_reentry_date(satellite)},{get_mass(satellite)}\n")
+            satellite_file.write(f"{get_id(satellite)},{get_name(satellite)},{get_launch_date(satellite)},{get_reentry_date(satellite)},{get_mass(satellite)},{get_orbit(satellite)}\n")
 
 if __name__ == '__main__':
     write_satellite_list_to_file()

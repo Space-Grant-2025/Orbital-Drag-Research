@@ -85,7 +85,7 @@ def get_reference(id):
 # returns propagated altitude less than 100km and corresponding epoch
 def get_estimated_reentry(id):
     # get julian day of last tle data point
-    with (open(f'../data/tles/tle_{id}.txt', 'r') as file):
+    with (open(f'../data/starlink_tles/tle_{id}.txt', 'r') as file):
         # pass over headers
         file.readline()
 
@@ -103,7 +103,7 @@ def get_estimated_reentry(id):
 def get_prediction(id):
     reference_date = get_reference(id)[1]
 
-    with (open(f'../data/tles/tle_{id}.txt', 'r') as file):
+    with (open(f'../data/starlink_tles/tle_{id}.txt', 'r') as file):
         lines = file.readlines()[:]
     file.close()
 

@@ -41,7 +41,7 @@ def get_tle(id):
 
 # given tle data, add it to txt file
 def write_tle_to_file(text, id):
-    with open("../data/tles/tle_" + str(id) + ".txt", "w") as file:
+    with open("../data/starlink_tles/tle_" + str(id) + ".txt", "w") as file:
         for line in text.split('},{'):
             line_arr = line.split(',')
             tle0 = line_arr[37][12:].strip("\"")
@@ -54,8 +54,8 @@ def main():
     start_time = datetime.datetime.now()
 
     with open('../data/reentry_ids_masterlist.txt', 'r') as file:
-        if not os.path.exists("../data/tles/"):
-            os.makedirs("../data/tles/")
+        if not os.path.exists("../data/starlink_tles/"):
+            os.makedirs("../data/starlink_tles/")
 
         # pass over headers
         file.readline()
@@ -67,7 +67,7 @@ def main():
         for id in file:
             id = int(id.strip())
 
-            if os.path.exists("../data/tles/tle_" + str(id) + ".txt"):
+            if os.path.exists("../data/starlink_tles/tle_" + str(id) + ".txt"):
                 continue
 
             tle = get_tle(id)
