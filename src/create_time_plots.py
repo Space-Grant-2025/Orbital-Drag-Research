@@ -243,7 +243,7 @@ def run_altitude_time():
     if not os.path.exists("../data/reentry_graphs/altitude_time/"):
         os.makedirs("../data/reentry_graphs/altitude_time/")
 
-    with open('../data/reentry_ids_masterlist.txt', 'r') as masterlist:
+    with open('../data/starlink_reentries_list.txt', 'r') as masterlist:
         count = 1
         # pass over headers
         masterlist.readline()
@@ -264,7 +264,7 @@ def run_jb2008_time():
     if not os.path.exists("../data/reentry_graphs/jb2008_time/"):
         os.makedirs("../data/reentry_graphs/jb2008_time/")
 
-    with open('../data/reentry_ids_masterlist.txt', 'r') as masterlist:
+    with open('../data/starlink_reentries_list.txt', 'r') as masterlist:
         count = 1
         # pass over headers
         masterlist.readline()
@@ -286,7 +286,7 @@ def run_nrlmsise_time():
     if not os.path.exists("../data/reentry_graphs/nrlmsise_time/"):
         os.makedirs("../data/reentry_graphs/nrlmsise_time/")
 
-    with open('../data/reentry_ids_masterlist.txt', 'r') as masterlist:
+    with open('../data/starlink_reentries_list.txt', 'r') as masterlist:
         count = 1
         # pass over headers
         masterlist.readline()
@@ -306,7 +306,7 @@ def run_nrlmsise_time():
 
 def run_lifetime():
 
-    with open('../data/reentry_ids_masterlist.txt', 'r') as list:
+    with open('../data/starlink_reentries_list.txt', 'r') as list:
 
         # pass over headers
         next(list)

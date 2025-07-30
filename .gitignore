@@ -1,8 +1,8 @@
 # Project specific files
 SLTrack.ini
 .DS_Store
-/data/reentered_starlinks
-/data/other_satellites
+/data/other_reentries
+/data/starlink_reentries_2020_2025
 /data/dst
 
 # Byte-compiled / optimized / DLL files

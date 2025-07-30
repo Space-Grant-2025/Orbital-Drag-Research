@@ -167,7 +167,7 @@ def write_data_to_csv(id, tle_list):
 
 def main():
     start_time = datetime.datetime.now()
-    with open('../data/reentry_ids_masterlist.txt', 'r') as file:
+    with open('../data/starlink_reentries_list.txt', 'r') as file:
 
         if not os.path.exists("../data/dst/human_readable/"):
             os.makedirs("../data/dst/human_readable/")

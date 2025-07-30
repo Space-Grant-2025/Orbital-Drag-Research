@@ -50,7 +50,7 @@ def get_average_f10(start_year, end_year):
 def get_data_from_SOLFSMY():
     f10_list = []
 
-    with open('../data/SOLFSMY.TXT', 'r') as file:
+    with open('../data/external_datasets/SOLFSMY.TXT', 'r') as file:
         # pass over headers 4x
         for x in range (0, 4):
             next(file)
@@ -74,7 +74,7 @@ def get_data_from_SOLFSMY():
 def get_data_from_olivera_csv():
     f10_list = []
 
-    with open('../data/oliveira_solar_data.csv', 'r') as file:
+    with open('../data/external_datasets/oliveira_solar_data.csv', 'r') as file:
         csv_reader = csv.reader(file)
         # pass over headers
         next(csv_reader)

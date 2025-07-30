@@ -47,7 +47,7 @@ def create_satellite_list():
             else:
                 satellite_reentry_date = None
 
-            with open('../data/mcdowell_satcat.csv', 'r') as satcat_file:
+            with open('../data/external_datasets/mcdowell_satcat.csv', 'r') as satcat_file:
                 satcat_reader = csv.reader(satcat_file)
                 # pass over headers
                 next(satcat_reader)
@@ -91,7 +91,7 @@ def create_date(date_str):
 
 def write_satellite_list_to_file():
     satellite_list = create_satellite_list()
-    with open('../data/satellite_masses_list.csv', 'w') as satellite_file:
+    with open('../data/all_satellite_info.csv', 'w') as satellite_file:
         satellite_file.write("NORAD CAT ID,NAME,LAUNCH DATE,REENTRY DATE,DRY MASS (KG), ORBIT\n")
         for satellite in satellite_list:
             satellite_file.write(f"{get_id(satellite)},{get_name(satellite)},{get_launch_date(satellite)},{get_reentry_date(satellite)},{get_mass(satellite)},{get_orbit(satellite)}\n")

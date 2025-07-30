@@ -24,7 +24,7 @@ def check_csv_txt_exists(id):
         print(f'{count}: {id} csv file does not exist')
 
 def run_check_csv_txt():
-    with open('../data/reentry_ids_masterlist.txt', 'r') as file:
+    with open('../data/starlink_reentries_list.txt', 'r') as file:
         # pass over headers
         file.readline()
 
@@ -60,7 +60,7 @@ def check_oliveira_data_against_masterlist():
     print("Finished checking Oliveira data\n")
 
 def add_oliveira_data_to_masterlist():
-    with open('../data/reentry_ids_masterlist.txt', 'a') as masterlist:
+    with open('../data/starlink_reentries_list.txt', 'a') as masterlist:
         for id in oliveira_ids:
             masterlist.write(id + "\n")
     print("Added Oliveira data to masterlist\n")

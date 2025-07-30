@@ -1,6 +1,9 @@
 import os
 from create_mass_reentry_plots import *
 from get_satellite_masses_file import *
+from csv import reader
+
+# TODO: all satellite reentry lifetime altitude color bar starlink squares, other circles
 
 # lifetime of satellites by mass
 def plot_prelim_altitude_mass_lifetime(start_year, end_year):
@@ -62,6 +65,9 @@ def plot_prelim_altitude_mass_lifetime(start_year, end_year):
     plot.xscale('log')
     ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=False))
     plot.savefig('../data/lifetime_graphs/prelim_altitude_mass_lifetime.png', format='png')
+
+# def plot_reentry_mass_lifetime(start_year, end_year):
+
 
 if __name__ == '__main__':
     if not os.path.exists("../data/lifetime_graphs/"):
