@@ -4,6 +4,7 @@ import sys
 from datetime import timedelta, datetime
 import ephem
 import queue
+from csv import reader
 from read_tle_by_id import get_date_from_tle
 from special_tools import day2doy
 
@@ -63,7 +64,7 @@ def get_min_dst(self):
 # given a NORAD ID, reads in processed csv data
 # returns altitude closest to 280km and corresponding epoch
 def get_reference(id):
-    with open(f'../data/human_readable/tle_{id}.csv', 'r') as csvfile:
+    with open(f'../data/starlink_reentries_2020_2025/human_readable/tle_{id}.csv', 'r') as csvfile:
         # pass over header
         csvfile.readline()
         # tuple holding closest altitude and corresponding date, initialized at massive number and date placeholder
@@ -73,7 +74,7 @@ def get_reference(id):
         for row in csvfile:
             split_row = row.split(',')
             # current values
-            current_alt = float(split_row[1]), split_row[0]
+            current_alt = int(float(split_row[2])), split_row[0]
             # distances of minimum and current values from 280
             curr_distance_from_280 = abs(current_alt[0] - 280)
             min_distance_from_280 = abs(closest_alt[0] - 280)
@@ -85,7 +86,7 @@ def get_reference(id):
 # returns propagated altitude less than 100km and corresponding epoch
 def get_estimated_reentry(id):
     # get julian day of last tle data point
-    with (open(f'../data/starlink_tles/tle_{id}.txt', 'r') as file):
+    with (open(f'../data/starlink_reentries_2020_2025/starlink_tles/tle_{id}.txt', 'r') as file):
         # pass over headers
         file.readline()
 
@@ -98,25 +99,26 @@ def get_estimated_reentry(id):
     tle2 = file_queue.get().strip()
     tle1 = file_queue.get().strip()
 
-    return get_100km(id, tle1, tle2)
+    return predict_100km(id, tle1, tle2)
 
 def get_prediction(id):
     reference_date = get_reference(id)[1]
 
-    with (open(f'../data/starlink_tles/tle_{id}.txt', 'r') as file):
+    with (open(f'../data/starlink_reentries_2020_2025/starlink_tles/tle_{id}.txt', 'r') as file):
         lines = file.readlines()[:]
     file.close()
 
-    for x in range(0, len(lines), 2):
+    for x in range(0, len(lines), 3):
         # create tle object and add to list
-        tle1 = lines[x].strip("\n")
-        tle2 = lines[x + 1].strip("\n")
+        tle0 = lines[x].strip()
+        tle1 = lines[x + 1].strip("\n")
+        tle2 = lines[x + 2].strip("\n")
 
         if str(get_date_from_tle(tle1)) == reference_date:
-            return get_100km(id, tle1, tle2)
+            return predict_100km(id, tle1, tle2)
     return None
 
-def get_100km(id, tle1, tle2):
+def predict_100km(id, tle1, tle2):
     # ephem object reads in given tle data
     ephem_satellite = ephem.readtle('NORAD' + str(id), tle1, tle2)
 
@@ -177,8 +179,7 @@ def get_dst(id):
                         dst_list.append(float(lines[dst:dst+4]))
     return min(dst_list)
 
-
-def write_epochs_to_csv(epochs_list):
+def write_epochs_to_master_csv(epochs_list):
     # delete epochs.csv every time this program runs to get a fresh set of data
     if os.path.exists(f'../data/epochs.csv'):
         os.remove(f'../data/epochs.csv')
@@ -193,10 +194,19 @@ def write_epochs_to_csv(epochs_list):
             print(f'{count}: {get_id(satellite)}')
             epochs.write(f'{get_id(satellite)},{get_reference_epoch(satellite)},{get_reference_alt(satellite)},{get_estimated_reentry_epoch(satellite)},{get_estimated_reentry_alt(satellite)},{get_prediction_epoch(satellite)},{get_prediction_alt(satellite)},{get_min_dst(satellite)}\n')
 
-def main():
+def get_prediction_data(id):
+    with open(f'../data/starlink_reentries_2020_2025/human_readable/tle_{id}.csv') as file:
+        csv_reader = reader(file)
+        # pass over headers
+        next(csv_reader)
+
+        reference_epoch = get_reference(id)[1]
+        reference_alt = get_reference(id)[0]
+
+def generate_epochs_masterlist():
     epochs_list = []
 
-    with open(f'../data/reentry_ids_masterlist.txt', 'r') as masterlist:
+    with open(f'../data/starlink_reentries_list.txt', 'r') as masterlist:
         count = 1
         # pass over headers
         masterlist.readline()
@@ -208,7 +218,7 @@ def main():
             print(f'{count}: {id}')
             count += 1
 
-    write_epochs_to_csv(epochs_list)
+    write_epochs_to_master_csv(epochs_list)
 
 if __name__ == '__main__':
-    main()
+    generate_epochs_masterlist()
