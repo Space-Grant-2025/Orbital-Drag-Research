@@ -1,11 +1,9 @@
 # Project specific files
 SLTrack.ini
 .DS_Store
-/data/starlink_tles
-/data/human_readable
+/data/reentered_starlinks
+/data/other_satellites
 /data/dst
-/data/reentry_graphs
-/data/lifetime_profiles
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

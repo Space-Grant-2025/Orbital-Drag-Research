@@ -1,4 +1,4 @@
-from csv import reader
+import csv
 import datetime
 import pyautogui
 
@@ -30,7 +30,7 @@ def get_orbit(self):
 def create_satellite_list():
     satellite_list = []
     with open(f'../data/payloads.csv', 'r') as mass_file:
-        mass_reader = reader(mass_file)
+        mass_reader = csv.reader(mass_file)
         # pass over headers
         next(mass_reader)
 
@@ -48,7 +48,7 @@ def create_satellite_list():
                 satellite_reentry_date = None
 
             with open('../data/mcdowell_satcat.csv', 'r') as satcat_file:
-                satcat_reader = reader(satcat_file)
+                satcat_reader = csv.reader(satcat_file)
                 # pass over headers
                 next(satcat_reader)
 

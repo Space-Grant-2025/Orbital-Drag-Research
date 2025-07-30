@@ -169,8 +169,8 @@ def main():
     start_time = datetime.datetime.now()
     with open('../data/reentry_ids_masterlist.txt', 'r') as file:
 
-        if not os.path.exists("../data/human_readable/"):
-            os.makedirs("../data/human_readable/")
+        if not os.path.exists("../data/dst/human_readable/"):
+            os.makedirs("../data/dst/human_readable/")
 
         # pass over headers
         file.readline()

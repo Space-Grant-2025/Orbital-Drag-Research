@@ -4,6 +4,8 @@ import configparser
 import datetime
 import time
 import os.path
+from csv import reader
+from create_mass_reentry_plots import *
 
 # given a NORAD ID, returns the TLE data for the corresponding satellite
 def get_tle(id):
@@ -40,8 +42,8 @@ def get_tle(id):
         return tle.text
 
 # given tle data, add it to txt file
-def write_tle_to_file(text, id):
-    with open("../data/starlink_tles/tle_" + str(id) + ".txt", "w") as file:
+def write_reentered_starlink_to_file(text, id):
+    with open("../data/reentered_starlinks/starlink_tles/tle_" + str(id) + ".txt", "w") as file:
         for line in text.split('},{'):
             line_arr = line.split(',')
             tle0 = line_arr[37][12:].strip("\"")
@@ -50,11 +52,11 @@ def write_tle_to_file(text, id):
             file.write(f'{tle0}\n{tle1}\n{tle2}\n')
 
 # loops through the norad ids in the txt file
-def main():
+def get_reentered_starlink_tles():
     start_time = datetime.datetime.now()
 
     with open('../data/reentry_ids_masterlist.txt', 'r') as file:
-        if not os.path.exists("../data/starlink_tles/"):
+        if not os.path.exists("../data/reentered_starlinks/starlink_tles/"):
             os.makedirs("../data/starlink_tles/")
 
         # pass over headers
@@ -67,11 +69,11 @@ def main():
         for id in file:
             id = int(id.strip())
 
-            if os.path.exists("../data/starlink_tles/tle_" + str(id) + ".txt"):
+            if os.path.exists("../data/reentered_starlinks/starlink_tles/tle_" + str(id) + ".txt"):
                 continue
 
             tle = get_tle(id)
-            write_tle_to_file(tle, id)
+            write_reentered_starlink_to_file(tle, id)
 
             # jitter to keep computer awake
             pyautogui.press('shift')
@@ -87,5 +89,57 @@ def main():
     end_time = datetime.datetime.now()
     print(str(f'Finished: {end_time - start_time}'))
 
+def write_other_satellite_to_file(text, id):
+
+    if not os.path.exists("../data/other_satellites/other_tles/"):
+        os.makedirs("../data/other_satellites/other_tles/")
+
+    with open("../data/other_satellites/other_tles/tle_" + str(id) + ".txt", "w") as file:
+        for line in text.split('},{'):
+            line_arr = line.split(',')
+            tle0 = line_arr[37][12:].strip("\"")
+            tle1 = line_arr[38][12:].strip("\"")
+            tle2 = line_arr[39][12:].strip("\"")
+            file.write(f'{tle0}\n{tle1}\n{tle2}\n')
+
+def get_orbiting_starlink_tles():
+    start_time = datetime.datetime.now()
+    with open("../data/satellite_masses_list.csv", "r") as file:
+        csv_reader = reader(file)
+
+        # pass over headers
+        next(csv_reader)
+
+        starlink_list = get_starlink_list(1957, 2025)
+
+        count = 1
+        for starlink in starlink_list:
+            id = get_id(starlink)
+            # check not reentered
+            if os.path.exists(f"../data/reentered_starlinks/starlink_tles/tle_{id}.txt"):
+                continue
+            # check file doesn't exist already
+            if os.path.exists(f"../data/other_satellites/other_tles/tle_{id}.txt"):
+                continue
+
+            tle = get_tle(id)
+            write_other_satellite_to_file(tle, id)
+
+            # jitter to keep computer awake
+            pyautogui.press('shift')
+
+            # progress tracker
+            print(f'{count}: {id}')
+            count += 1
+
+            # delay requests to prevent bandwidth excess as requested by space-track
+            time.sleep(12)
+
+    # prints total time program takes to run because i'm curious
+    end_time = datetime.datetime.now()
+    print(str(f'Finished: {end_time - start_time}'))
+
+
 if __name__ == '__main__':
-    main()
+    # get_reentered_starlink_tles()
+    get_orbiting_starlink_tles()

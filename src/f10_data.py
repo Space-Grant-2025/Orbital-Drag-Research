@@ -157,8 +157,8 @@ def plot_f10_time(start_date, end_date):
     plot.scatter(f10_dates, f10_values, s = 1)
     plot.title("F10 Values by Time")
     plot.ylabel("F10")
-    plot.xlabel("Date (MM/YY)")
-    plot.savefig("../data/reentry_graphs/f10_time.png", format="png")
+    plot.xlabel("Date (YYYY)")
+    plot.savefig("../data/mass_graphs/f10_time.png", format="png")
 
 if __name__ == '__main__':
     start_date = datetime.date(1957, 1, 1)
