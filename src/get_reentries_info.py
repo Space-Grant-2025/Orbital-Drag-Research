@@ -58,7 +58,25 @@ def create_avg_alt(id):
 def make_sat_object(row):
     id = row[0]
     name = row[1]
-    launch_date = row[2]
+    if row[2] == 'None':
+        if os.path.exists(f"../data/other_reentries/human_readable/tle_{id}.csv"):
+            with open(f"../data/other_reentries/human_readable/tle_{id}.csv") as file:
+                csv_reader = reader(file)
+                # pass over headers
+                next(csv_reader)
+                row1 = next(csv_reader)
+                launch_date = row1[0][:10]
+        elif os.path.exists(f"../data/starlink_reentries_2020_2025/human_readable/tle_{id}.csv"):
+            with open(f"../data/starlink_reentries_2020_2025/human_readable/tle_{id}.csv") as file:
+                csv_reader = reader(file)
+                # pass over headers
+                next(csv_reader)
+                row1 = next(csv_reader)
+                launch_date = row1[0][:10]
+        else:
+            launch_date = None
+    else:
+        launch_date = row[2]
     reentry_date = row[3]
     mass = row[4]
 
