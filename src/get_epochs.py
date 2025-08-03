@@ -118,17 +118,10 @@ def predict_100km(tle):
 
     return altitude, date
 
-def write_data_to_csv(id):
-    with open(f"../data/starlink_reentries_2020_2025/epoch_files/epoch_{id}.csv", "w") as file:
-        file.write("ID,REFERENCE DATE,REFERENCE ALTITUDE (KM),PREDICTION DATE,PREDICTION ALTITUDE (KM)\n")
-
-        for object in generate_reference_predictions_data(id):
-            file.write(f"{get_ref_id(object)},{get_ref_date(object)},{get_ref_alt(object)},{get_reentry_date(object)},{get_reentry_alt(object)}\n")
-
 def generate_reference_predictions_data(id):
     reference_predictions_list = []
-    tle_list = get_tle_list(44235)
-    reference_object = get_reference(44235, tle_list)
+    tle_list = get_tle_list(id)
+    reference_object = get_reference(id, tle_list)
     index = tle_list.index(reference_object)
 
     for x in range(index, len(tle_list)):
@@ -138,8 +131,25 @@ def generate_reference_predictions_data(id):
         reference_predictions_list.append(reference_object)
     return reference_predictions_list
 
+def write_data_to_csv(id):
+    with open(f"../data/starlink_reentries_2020_2025/epoch_files/epoch_{id}.csv", "w") as file:
+        file.write("ID,REFERENCE DATE,REFERENCE ALTITUDE (KM),PREDICTION DATE,PREDICTION ALTITUDE (KM)\n")
+
+        for object in generate_reference_predictions_data(id):
+            file.write(f"{get_ref_id(object)},{get_ref_date(object)},{get_ref_alt(object)},{get_reentry_date(object)},{get_reentry_alt(object)}\n")
+
 if __name__ == "__main__":
     if not os.path.exists("../data/starlink_reentries_2020_2025/epoch_files/"):
         os.makedirs("../data/starlink_reentries_2020_2025/epoch_files/")
 
-    write_data_to_csv(44235)
+    with open("../data/starlink_reentries_list.txt", "r") as file:
+        # pass over headers
+        next(file)
+        count = 1
+        for line in file:
+            id = line.strip()
+            # make sure file doesn't already exist
+            if not os.path.exists(f"../data/starlink_reentries_2020_2025/epoch_files/epoch_{id}.csv"):
+                write_data_to_csv(id)
+                print(f"{count}: {id}")
+                count += 1
