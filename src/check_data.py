@@ -8,7 +8,7 @@ oliveira_ids = []
 
 # checks reentry masterlist to see if both a csv and txt file exists for each NORAD id
 # prints id and message if does not exist
-def check_files_exists(id):
+def check_starlink_files_exists(id):
     global count
     txt_exists = os.path.isfile(f'../data/starlink_reentries_2020_2025/starlink_tles/tle_{id}.txt')
     csv_exist = os.path.isfile(f'../data/starlink_reentries_2020_2025/human_readable/tle_{id}.csv')
@@ -37,7 +37,7 @@ def check_files_exists(id):
         print(f'{count}: {id} nrlmsise_time graph does not exist')
 
 
-def run_check_files():
+def run_check_starlink_files():
     with open('../data/starlink_reentries_list.txt', 'r') as file:
         # pass over headers
         file.readline()
@@ -46,7 +46,7 @@ def run_check_files():
         for id in file:
             id = id.strip()
             masterlist_ids.append(id)
-            check_files_exists(id)
+            check_starlink_files_exists(id)
     print("Finished checking files\n")
 
 # checks oliveira's list of ids against masterlist
@@ -79,6 +79,48 @@ def add_oliveira_data_to_masterlist():
             masterlist.write(id + "\n")
     print("Added Oliveira data to masterlist\n")
 
-run_check_files()
+# make sure reentries are bifurcated
+def check_reentry_files():
+    with open('../data/other_reentries_list.txt', 'r') as file:
+        lines = file.readlines()
+        num = len(lines)
+        starlink_count = 0
+        other_count = 0
+        for id in lines:
+            id = id.strip()
+            if os.path.exists(f'../data/starlink_reentries_2020_2025/human_readable/tle_{id}.csv'):
+                starlink_count += 1
+            if os.path.exists(f'../data/other_reentries/human_readable/tle_{id}.csv'):
+                other_count += 1
+    print(f'Starlink: {starlink_count}\nOther: {other_count}\nTotal: {starlink_count+other_count}\nNum Lines: {num}\n')
+    print("Finished checking reentry files\n")
+
+def check_starlinks_in_reentry():
+    count = 0
+    starlink_list = []
+    with open('../data/other_reentries_list.txt', 'r') as file:
+        reentries = file.readlines()
+    with open('../data/starlink_reentries_list.txt', 'r') as file:
+        # pass over header
+        file.readline()
+
+        for id in file:
+            if not id in reentries:
+                count += 1
+                starlink_list.append(id)
+                print(f'{count}: {id} not in reentry list')
+    return starlink_list
+
+def add_starlink_to_reentry():
+    list = check_starlinks_in_reentry()
+    with open('../data/other_reentries_list.txt', 'a') as file:
+        for id in list:
+            file.write(id)
+
+run_check_starlink_files()
 check_oliveira_data_against_masterlist()
 add_oliveira_data_to_masterlist()
+check_reentry_files()
+#check_starlinks_in_reentry()
+add_starlink_to_reentry()
+check_starlinks_in_reentry()
