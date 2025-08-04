@@ -1,9 +1,61 @@
 import os
+import matplotlib
 from create_mass_reentry_plots import *
 from get_satellite_masses_file import *
 from csv import reader
+from colormaps import *
 
 # TODO: all satellite reentry lifetime altitude color bar starlink squares, other circles
+def plot_altitude_mass_lifetime(start_year, end_year):
+    with open("../data/all_reentries_info.csv", 'r') as file:
+        csv_reader = reader(file)
+        # pass over headers
+        next(csv_reader)
+
+        starlink_mass_list = []
+        starlink_lifetime_list = []
+        starlink_altitude_list = []
+
+        other_mass_list = []
+        other_lifetime_list = []
+        other_altitude_list = []
+
+        for row in csv_reader:
+            # check mean alt to make sure satellite is leo
+            if row[5] != 'None' and float(row[5]) <= 1000:
+                launch_date = datetime.datetime.strptime(row[2], "%Y-%m-%d")
+                reentry_date = datetime.datetime.strptime(row[3], "%Y-%m-%d")
+
+                lifetime = (reentry_date - launch_date).days / 365
+                mass = float(row[4])
+                altitude = float(row[5])
+                # check if starlink
+                if "STARLINK" in row[1]:
+                    starlink_mass_list.append(mass)
+                    starlink_lifetime_list.append(lifetime)
+                    starlink_altitude_list.append(altitude)
+                else:
+                    other_mass_list.append(mass)
+                    other_lifetime_list.append(lifetime)
+                    other_altitude_list.append(altitude)
+
+
+    fig, ax = plot.subplots(figsize = (9, 4.8), layout='constrained')
+
+    norm = matplotlib.colors.Normalize(vmin=100, vmax=800)
+    cmap = idl39
+    fig.colorbar(matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, orientation='vertical', label='Altitude (km)')
+
+    plot.scatter(other_mass_list, other_lifetime_list, s = 20, c = other_altitude_list, cmap = cmap, norm = norm, marker = '.')
+    plot.scatter(starlink_mass_list, starlink_lifetime_list, s = 20, c = starlink_altitude_list, cmap = cmap, norm = norm, marker = 'x')
+
+    plot.title("Reentered LEO Satellite Lifetime by Dry Mass and Altitude")
+    plot.ylabel("Years in Orbit")
+    plot.xlabel("Mass (kg)")
+    plot.xscale('log')
+    ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=False))
+    plot.savefig('../data/lifetime_graphs/altitude_mass_lifetime.png', format='png')
+
 
 # lifetime of satellites by mass
 def plot_prelim_altitude_mass_lifetime(start_year, end_year):
@@ -66,11 +118,9 @@ def plot_prelim_altitude_mass_lifetime(start_year, end_year):
     ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=False))
     plot.savefig('../data/lifetime_graphs/prelim_altitude_mass_lifetime.png', format='png')
 
-# def plot_reentry_mass_lifetime(start_year, end_year):
-
-
 if __name__ == '__main__':
     if not os.path.exists("../data/lifetime_graphs/"):
         os.makedirs("../data/lifetime_graphs/")
 
-    plot_prelim_altitude_mass_lifetime(1957, 2025)
+    #plot_prelim_altitude_mass_lifetime(1957, 2025)
+    plot_altitude_mass_lifetime(1957, 2025)

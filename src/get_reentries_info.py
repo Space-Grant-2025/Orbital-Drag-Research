@@ -108,7 +108,7 @@ def make_sat_list():
 def write_sat_list_to_file():
     satellite_list = make_sat_list()
 
-    with open('../data/reentries_info.csv', 'w') as file:
+    with open('../data/all_reentries_info.csv', 'w') as file:
         file.write("ID,NAME,LAUNCH_DATE,REENTRY_DATE,MASS,MEAN ALTITUDE (KM)\n")
         for satellite in satellite_list:
             file.write(f"{get_id(satellite)},{get_name(satellite)},{get_launch_date(satellite)},{get_reentry_date(satellite)},{get_mass(satellite)},{get_avg_alt(satellite)}\n")
