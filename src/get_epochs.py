@@ -78,14 +78,20 @@ def get_tle_list(id):
 
 def get_reference(id, tle_list):
     closest_alt = float(sys.maxsize), NoneType
-    for tle in tle_list:
+    # make sure not to choose reference altitude on ascent
+    length = len(tle_list)
+    if length <= 10:
+        start = 0
+    else:
+        start = int(length / 2)
+    for x in range(start, length):
         # current values
-        current_alt = get_altitude(tle)
+        current_alt = get_altitude(tle_list[x])
         # distances of minimum and current values from 280
         curr_distance_from_280 = abs(current_alt - 280)
         min_distance_from_280 = abs(closest_alt[0] - 280)
         if curr_distance_from_280 < min_distance_from_280:
-            closest_alt = current_alt, tle
+            closest_alt = current_alt, tle_list[x]
     return closest_alt[1]
 
 def predict_100km(tle):
@@ -122,12 +128,12 @@ def generate_reference_predictions_data(id):
     reference_predictions_list = []
     tle_list = get_tle_list(id)
     reference_object = get_reference(id, tle_list)
-    index = tle_list.index(reference_object)
+    reference_index = tle_list.index(reference_object)
 
-    for x in range(index, len(tle_list)):
+    for x in range(reference_index, len(tle_list)):
         tle = tle_list[x]
-        altitude, date = predict_100km(tle)
-        reference_object = reference_predictions(get_tle_id(tle), get_date(tle), get_altitude(tle), date, altitude)
+        predicted_altitude, predicted_date = predict_100km(tle)
+        reference_object = reference_predictions(get_tle_id(tle), get_date(tle), get_altitude(tle), predicted_date, predicted_altitude)
         reference_predictions_list.append(reference_object)
     return reference_predictions_list
 
