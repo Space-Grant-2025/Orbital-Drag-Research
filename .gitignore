@@ -1,5 +1,5 @@
 # Project specific files
-SLTrack.ini
+/src/SLTrack.ini
 .DS_Store
 /data/other_reentries
 /data/starlink_reentries_2020_2025

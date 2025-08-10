@@ -5,8 +5,6 @@ import ephem
 import math
 import pyautogui
 from ephem import EarthSatellite
-from skyfield import api
-from skyfield.api import wgs84
 
 # inverse flattening at each pole for Earth ellipsoid (WGS 84)
 flattening = 1. / 298.257223563
@@ -102,12 +100,10 @@ def get_local_time(day_of_year, longitude, utc):
 
 def get_jb2008_density(tle):
     tle_date = tle.get_date()
-    if tle_date > datetime.date(2000, 1, 1):
-        tle_date = tle_date.strftime("%Y-%m-%d %H:%M:%S")
-        jb08 = jb2008(tle_date, (tle.get_latitude(), tle.get_longitude(), tle.get_altitude()), jb2008_swdata)
-        density = jb08.rho
-        return str(density)
-    return None
+    tle_date = tle_date.strftime("%Y-%m-%d %H:%M:%S")
+    jb08 = jb2008(tle_date, (tle.get_latitude(), tle.get_longitude(), tle.get_altitude()), jb2008_swdata)
+    density = jb08.rho
+    return str(density)
 
 def get_nrlmsise_density(tle):
     tle_date = tle.get_date().strftime("%Y-%m-%d %H:%M:%S")

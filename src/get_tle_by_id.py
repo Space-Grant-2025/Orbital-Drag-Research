@@ -1,10 +1,12 @@
-import pyautogui
 import requests
 import configparser
 import datetime
 import time
 import os.path
 from csv import reader
+
+from numba.core.typing import Context
+import pyautogui
 from create_mass_reentry_plots import *
 
 # given a NORAD ID, returns the TLE data for the corresponding satellite
@@ -77,7 +79,7 @@ def get_reentered_starlink_tles():
             write_reentered_starlink_to_file(tle, id)
 
             # jitter to keep computer awake
-            pyautogui.press('shift')
+            keyboard.press('shift')
 
             # progress tracker
             print(f'{count}: {id}')
@@ -120,7 +122,8 @@ def get_other_reentry_tles():
             write_other_reentries_to_file(tle, id)
 
             # jitter to keep computer awake
-            pyautogui.press('shift')
+            pyautogui.press('enter')
+
 
             # progress tracker
             print(f'{count}: {id}')
