@@ -3,7 +3,6 @@
 .DS_Store
 /data/other_reentries
 /data/starlink_reentries_2020_2025
-/data/dst
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

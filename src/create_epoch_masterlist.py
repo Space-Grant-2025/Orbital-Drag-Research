@@ -1,7 +1,7 @@
 import glob
 import os
 import sys
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 import ephem
 import queue
 from csv import reader
@@ -13,6 +13,8 @@ class satellite_epochs:
         self.id = id
         self.reference_epoch = get_reference(id)[1]
         self.reference_alt = get_reference(id)[0]
+        self.reference_line1 = get_reference(id)[2]
+        self.reference_line2 = get_reference(id)[3]
         self.estimated_reentry_epoch = get_estimated_reentry(id)[1]
         self.estimated_reentry_alt = get_estimated_reentry(id)[0]
         self.prediction_epoch = get_prediction(id)[1]
@@ -26,6 +28,10 @@ def get_reference_epoch(self):
     return self.reference_epoch
 def get_reference_alt(self):
     return self.reference_alt
+def get_reference_line1(self):
+    return self.reference_line1
+def get_reference_line2(self):
+    return self.reference_line2
 def get_estimated_reentry_epoch(self):
     return self.estimated_reentry_epoch
 def get_estimated_reentry_alt(self):
@@ -68,13 +74,13 @@ def get_reference(id):
         # pass over header
         csvfile.readline()
         # tuple holding closest altitude and corresponding date, initialized at massive number and date placeholder
-        closest_alt = float(sys.maxsize), None
+        closest_alt = float(sys.maxsize), datetime(1900, 1, 1, 0, 0, 0, tzinfo= timezone.utc)
 
         # loop over csv data and hold altitude nearest to 280 and corresponding altitude
         for row in csvfile:
             split_row = row.split(',')
             # current values
-            current_alt = int(float(split_row[2])), split_row[0]
+            current_alt = int(float(split_row[2])), datetime.strptime(split_row[0], "%Y-%m-%d %H:%M:%S%z"), split_row[9], split_row[10].strip()
             # distances of minimum and current values from 280
             curr_distance_from_280 = abs(current_alt[0] - 280)
             min_distance_from_280 = abs(closest_alt[0] - 280)
@@ -114,7 +120,7 @@ def get_prediction(id):
         tle1 = lines[x + 1].strip("\n")
         tle2 = lines[x + 2].strip("\n")
 
-        if str(get_date_from_tle(tle1)) == reference_date:
+        if get_date_from_tle(tle1) == reference_date:
             return predict_100km(id, tle1, tle2)
     return None
 
@@ -149,7 +155,6 @@ def predict_100km(id, tle1, tle2):
 # dst files downloaded from https://wdc.kugi.kyoto-u.ac.jp/dst_realtime/index.html in wdc format
 def get_dst(id):
     reference_epoch = get_reference(id)[1]
-    reference_epoch = datetime.strptime(reference_epoch, "%Y-%m-%d %H:%M:%S%z")
     reference_year = reference_epoch.year
     reference_days = day2doy(reference_epoch.year, reference_epoch.month, reference_epoch.day)
     reference_hour = reference_epoch.hour
@@ -164,9 +169,10 @@ def get_dst(id):
     for file in dst_bag:
         with open(file) as data:
             for lines in data:
-                year = int(lines[3:5]) + 2000
-                month = int(lines[5:7])
-                day = int(lines[8:10])
+                line = lines.strip()
+                year = int(line[3:5]) + 2000
+                month = int(line[5:7])
+                day = int(line[8:10])
 
                 day_of_year = day2doy(year, month, day)
 
@@ -180,19 +186,18 @@ def get_dst(id):
     return min(dst_list)
 
 def write_epochs_to_master_csv(epochs_list):
-    # delete epochs.csv every time this program runs to get a fresh set of data
-    if os.path.exists(f'../data/epochs.csv'):
-        os.remove(f'../data/epochs.csv')
+    # delete epoch_masterlist.csv every time this program runs to get a fresh set of data
+    if os.path.exists(f'../data/epoch_masterlist.csv'):
+        os.remove(f'../data/epoch_masterlist.csv')
 
-    with open(f'../data/epochs.csv', 'w') as epochs:
+    with open(f'../data/epoch_masterlist.csv', 'w') as epochs:
         # write headers
-        epochs.write("NORAD ID, REFERENCE ALTITUDE EPOCH, REFERENCE ALTITUDE (KM), ESTIMATED REENTRY EPOCH, ESTIMATED REENTRY ALTITUDE (KM), PREDICTION EPOCH, PREDICTION ALTITUDE (KM), MIN DST\n")
+        epochs.write("NORAD ID,REFERENCE ALTITUDE EPOCH,REFERENCE ALTITUDE (KM),REFERENCE TLE 1,REFERENCE TLE 2,ESTIMATED REENTRY EPOCH,ESTIMATED REENTRY ALTITUDE (KM),PREDICTION EPOCH,PREDICTION ALTITUDE (KM),MIN DST\n")
 
         count = 0
         for satellite in epochs_list:
             count += 1
-            print(f'{count}: {get_id(satellite)}')
-            epochs.write(f'{get_id(satellite)},{get_reference_epoch(satellite)},{get_reference_alt(satellite)},{get_estimated_reentry_epoch(satellite)},{get_estimated_reentry_alt(satellite)},{get_prediction_epoch(satellite)},{get_prediction_alt(satellite)},{get_min_dst(satellite)}\n')
+            epochs.write(f'{get_id(satellite)},{get_reference_epoch(satellite)},{get_reference_alt(satellite)},{get_reference_line1(satellite)},{get_reference_line2(satellite)},{get_estimated_reentry_epoch(satellite)},{get_estimated_reentry_alt(satellite)},{get_prediction_epoch(satellite)},{get_prediction_alt(satellite)},{get_min_dst(satellite)}\n')
 
 def get_prediction_data(id):
     with open(f'../data/starlink_reentries_2020_2025/human_readable/tle_{id}.csv') as file:
@@ -215,8 +220,8 @@ def generate_epochs_masterlist():
             id = id.strip()
             satellite = satellite_epochs(id)
             epochs_list.append(satellite)
-            print(f'{count}: {id}')
             count += 1
+            print(f'{count}: {id}')
 
     write_epochs_to_master_csv(epochs_list)
 
