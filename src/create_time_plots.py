@@ -64,7 +64,7 @@ def gather_data_from_csv(id):
 
 def get_reference_epoch(id):
     reference_epoch = ""
-    with open('../data/epochs.csv', 'r') as file:
+    with open('../data/epoch_masterlist.csv', 'r') as file:
         csv_reader = reader(file)
         # pass over headers
         next(csv_reader)
@@ -123,7 +123,7 @@ def plot_jb2008_time(satellite_list):
     reference_epoch = ""
     satellite_id = get_id(satellite_list[0])
     # find reference epoch for satellite
-    with open('../data/epochs.csv', 'r') as file:
+    with open('../data/epoch_masterlist.csv', 'r') as file:
         csv_reader = reader(file)
         # pass over headers
         next(csv_reader)
@@ -169,7 +169,7 @@ def plot_nrlmsise_time(satellite_list):
     reference_epoch = ""
     satellite_id = get_id(satellite_list[0])
     # find reference epoch for satellite
-    with open('../data/epochs.csv', 'r') as file:
+    with open('../data/epoch_masterlist.csv', 'r') as file:
         csv_reader = reader(file)
         # pass over headers
         next(csv_reader)
@@ -255,8 +255,8 @@ def run_altitude_time():
             if os.path.exists("../data/starlink_reentries_2020_2025/reentry_graphs/altitude_time/" + str(id) + "_altitude_time.png"):
                 continue
 
-            plot_altitude_time(gather_data_from_csv(id))
             print(f"{count}: {id}")
+            plot_altitude_time(gather_data_from_csv(id))
             count += 1
     print("Finished altitude-time")
 

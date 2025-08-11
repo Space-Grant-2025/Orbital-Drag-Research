@@ -50,6 +50,10 @@ class ephem_tle:
     # getters
     def get_id(self):
         return self.id
+    def get_line1(self):
+        return self.tle_line1
+    def get_line2(self):
+        return self.tle_line2
     def get_name(self):
         return self.name
     def get_tle_line1(self):
@@ -185,20 +189,20 @@ def process_other_tle_data(id):
 def write_starlink_data_to_csv(id, tle_list):
     with open('../data/starlink_reentries_2020_2025/human_readable/tle_' + str(id) + '.csv', 'w') as file:
 
-        file.write("DATE, NAME, ALTITUDE, VELOCITY, LATITUDE, LONGITUDE, JB2008 DENSITY, NRLMSISE00 DENSITY, LOCAL TIME\n")
+        file.write("DATE,NAME,ALTITUDE,VELOCITY,LATITUDE,LONGITUDE,JB2008 DENSITY,NRLMSISE00 DENSITY,LOCAL TIME,TLE LINE 1,TLE LINE 2\n")
 
         for tle in tle_list:
             # write values to file
-            file.write(f'{str(tle.get_date())},{tle.get_name()},{tle.get_altitude()},{tle.get_velocity()},{tle.get_latitude()},{tle.get_longitude()},{get_jb2008_density(tle)}, {get_nrlmsise_density(tle)}, {get_local_time(tle.get_day_of_year(), tle.get_longitude(), tle.get_utc())}\n')
+            file.write(f'{str(tle.get_date())},{tle.get_name()},{tle.get_altitude()},{tle.get_velocity()},{tle.get_latitude()},{tle.get_longitude()},{get_jb2008_density(tle)}, {get_nrlmsise_density(tle)}, {get_local_time(tle.get_day_of_year(), tle.get_longitude(), tle.get_utc())},{tle.get_line1()},{tle.get_line2()}\n')
 
 def write_other_data_to_csv(id, tle_list):
     with open('../data/other_reentries/human_readable/tle_' + str(id) + '.csv', 'w') as file:
 
-        file.write("DATE,NAME,ALTITUDE,LATITUDE,LONGITUDE,LOCAL TIME\n")
+        file.write("DATE,NAME,ALTITUDE,LATITUDE,LONGITUDE,LOCAL TIME,TLE LINE 1,TLE LINE 2\n")
         tle_list = sorted(tle_list, key=lambda tle: tle.date)
         for tle in tle_list:
             # write values to file
-            file.write(f'{str(tle.get_date())},{tle.get_name()},{tle.get_altitude()},{tle.get_latitude()},{tle.get_longitude()},{get_local_time(tle.get_day_of_year(), tle.get_longitude(), tle.get_utc())}\n')
+            file.write(f'{str(tle.get_date())},{tle.get_name()},{tle.get_altitude()},{tle.get_latitude()},{tle.get_longitude()},{get_local_time(tle.get_day_of_year(), tle.get_longitude(), tle.get_utc())},{tle.get_line1},{tle.get_line2}\n')
 
 def read_starlink_tles():
     start_time = datetime.datetime.now()
@@ -282,4 +286,4 @@ if __name__ == '__main__':
 
 
     read_starlink_tles()
-    read_other_tles()
+    # read_other_tles()

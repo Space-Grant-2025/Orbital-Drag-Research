@@ -3,6 +3,7 @@
 .DS_Store
 /data/other_reentries
 /data/starlink_reentries_2020_2025
+/data/external_datasets/oliveira_epochs
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,4 +1,5 @@
 import os
+from curses.ascii import isdigit
 from datetime import datetime
 from matplotlib.pyplot import pcolormesh
 import matplotlib.pyplot as plot
@@ -14,18 +15,18 @@ num_days = 20
 
 def fill_count_arr(count, lines, reference_epoch):
     for x in range(2, len(lines)):
-        row = lines[x].split(',')
+        row = lines[x].strip().split()
         # date from which is being propagated
-        current_epoch = datetime.strptime(row[1], '%Y-%m-%d %H:%M:%S%z')
+        current_date = datetime.strptime(row[0], "%Y-%m-%d").date()
+        current_time = datetime.strptime(row[1][:5], "%H:%M").time()
+        current_epoch = datetime(current_date.year, current_date.month, current_date.day, current_time.hour, current_time.minute)
+
         day_delta = (current_epoch - reference_epoch).days
 
         # altitude before propagation
-        altitude = int(float(row[2]))
+        altitude = float(row[4])
         altitude_bin = int((altitude - 100) / bin_height)
 
-        date = current_epoch.date()
-
-        print(date, day_delta, altitude, altitude_bin)
 
         if altitude_bin >= num_bins or day_delta >= num_days:
             continue
@@ -35,15 +36,18 @@ def fill_count_arr(count, lines, reference_epoch):
     return count
 
 def process_file(id, count):
-    with open(f"../data/starlink_reentries_2020_2025/epoch_files/epoch_{id}.csv", "r") as file:
+    with open(f"../data/external_datasets/oliveira_epochs/ephem_{id}.txt", "r") as file:
         lines = file.readlines()
         if len(lines) <= 1:
             return None
-        first_row = lines[1].split(',')
-        last_row = lines[len(lines) - 1].split(',')
+        first_row = lines[1].strip().split()
+        first_date = datetime.strptime(first_row[0], "%Y-%m-%d").date()
+        first_time = datetime.strptime(first_row[1][:5], "%H:%M").time()
+        '''last_row = lines[len(lines) - 1].strip()
+        last_date = last_row.split('  ')[0]'''
 
-        reference_epoch = datetime.strptime(first_row[1], '%Y-%m-%d %H:%M:%S%z')
-        reentry_epoch = datetime.strptime(last_row[1], '%Y-%m-%d %H:%M:%S%z')
+        reference_epoch = datetime(first_date.year, first_date.month, first_date.day, first_time.hour, first_time.minute)
+        # reentry_epoch = datetime.strptime(last_date, '%Y-%m-%d %H:%M:%S')
 
         count = fill_count_arr(count, lines, reference_epoch)
     return count
@@ -60,6 +64,7 @@ def run_through_ids():
         for line in file:
             id = int(line.split('\t')[0])
             count = process_file(id, count)
+            print(id)
     return count
 
 def create_graph():

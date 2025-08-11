@@ -232,7 +232,7 @@ def plot_stacked_reentries_time(start_year, end_year):
 def plot_f10_starlink_reentries_time(start_date, end_date):
     # get reentries
     reentry_list = []
-    with open('../data/epochs.csv', 'r') as file:
+    with open('../data/epoch_masterlist.csv', 'r') as file:
         csv_reader = reader(file)
         # pass over headers
         next(csv_reader)
