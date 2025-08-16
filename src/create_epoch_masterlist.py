@@ -15,10 +15,12 @@ class satellite_epochs:
         self.reference_alt = get_reference(id)[0]
         self.reference_line1 = get_reference(id)[2]
         self.reference_line2 = get_reference(id)[3]
-        self.estimated_reentry_epoch = get_estimated_reentry(id)[1]
-        self.estimated_reentry_alt = get_estimated_reentry(id)[0]
         self.prediction_epoch = get_prediction(id)[1]
         self.prediction_alt = get_prediction(id)[0]
+        self.last_tle_line1 = get_estimated_reentry(id)[2]
+        self.last_tle_line2 = get_estimated_reentry(id)[3]
+        self.estimated_reentry_epoch = get_estimated_reentry(id)[1]
+        self.estimated_reentry_alt = get_estimated_reentry(id)[0]
         self.min_dst = get_dst(id)
 
 # getters
@@ -32,16 +34,21 @@ def get_reference_line1(self):
     return self.reference_line1
 def get_reference_line2(self):
     return self.reference_line2
-def get_estimated_reentry_epoch(self):
-    return self.estimated_reentry_epoch
-def get_estimated_reentry_alt(self):
-    return self.estimated_reentry_alt
 def get_prediction_epoch(self):
     return self.prediction_epoch
 def get_prediction_alt(self):
     return self.prediction_alt
+def get_last_tle_line1(self):
+    return self.last_tle_line1
+def get_last_tle_line2(self):
+    return self.last_tle_line2
+def get_estimated_reentry_epoch(self):
+    return self.estimated_reentry_epoch
+def get_estimated_reentry_alt(self):
+    return self.estimated_reentry_alt
 def get_min_dst(self):
     return self.min_dst
+
 
 # prediction epoch (space-track.org)
 # take reference altitude tle and create array hour by hour and create new objects for pyephem to read
@@ -77,8 +84,13 @@ def get_reference(id):
         closest_alt = float(sys.maxsize), datetime(1900, 1, 1, 0, 0, 0, tzinfo= timezone.utc)
 
         # loop over csv data and hold altitude nearest to 280 and corresponding altitude
-        for row in csvfile:
-            split_row = row.split(',')
+        lines = csvfile.readlines()
+        if len(lines) < 10:
+            start = 0
+        else:
+            start = len(lines) // 2
+        for x in range(start, len(lines)):
+            split_row = lines[x].split(',')
             # current values
             current_alt = int(float(split_row[2])), datetime.strptime(split_row[0], "%Y-%m-%d %H:%M:%S%z"), split_row[9], split_row[10].strip()
             # distances of minimum and current values from 280
@@ -105,7 +117,8 @@ def get_estimated_reentry(id):
     tle2 = file_queue.get().strip()
     tle1 = file_queue.get().strip()
 
-    return predict_100km(id, tle1, tle2)
+    altitude, date = predict_100km(id, tle1, tle2)
+    return altitude, date, tle1, tle2
 
 def get_prediction(id):
     reference_date = get_reference(id)[1]
@@ -192,21 +205,12 @@ def write_epochs_to_master_csv(epochs_list):
 
     with open(f'../data/epoch_masterlist.csv', 'w') as epochs:
         # write headers
-        epochs.write("NORAD ID,REFERENCE ALTITUDE EPOCH,REFERENCE ALTITUDE (KM),REFERENCE TLE 1,REFERENCE TLE 2,ESTIMATED REENTRY EPOCH,ESTIMATED REENTRY ALTITUDE (KM),PREDICTION EPOCH,PREDICTION ALTITUDE (KM),MIN DST\n")
+        epochs.write("NORAD ID,REFERENCE ALTITUDE EPOCH,REFERENCE ALTITUDE (KM),REFERENCE TLE 1,REFERENCE TLE 2,ESTIMATED REENTRY EPOCH,ESTIMATED REENTRY ALTITUDE (KM),LAST TLE LINE 1,LAST TLE LINE 2,PREDICTION EPOCH,PREDICTION ALTITUDE (KM),MIN DST\n")
 
         count = 0
         for satellite in epochs_list:
             count += 1
-            epochs.write(f'{get_id(satellite)},{get_reference_epoch(satellite)},{get_reference_alt(satellite)},{get_reference_line1(satellite)},{get_reference_line2(satellite)},{get_estimated_reentry_epoch(satellite)},{get_estimated_reentry_alt(satellite)},{get_prediction_epoch(satellite)},{get_prediction_alt(satellite)},{get_min_dst(satellite)}\n')
-
-def get_prediction_data(id):
-    with open(f'../data/starlink_reentries_2020_2025/human_readable/tle_{id}.csv') as file:
-        csv_reader = reader(file)
-        # pass over headers
-        next(csv_reader)
-
-        reference_epoch = get_reference(id)[1]
-        reference_alt = get_reference(id)[0]
+            epochs.write(f'{get_id(satellite)},{get_reference_epoch(satellite)},{get_reference_alt(satellite)},{get_reference_line1(satellite)},{get_reference_line2(satellite)},{get_estimated_reentry_epoch(satellite)},{get_estimated_reentry_alt(satellite)},{get_last_tle_line1(satellite)},{get_last_tle_line2(satellite)},{get_prediction_epoch(satellite)},{get_prediction_alt(satellite)},{get_min_dst(satellite)}\n')
 
 def generate_epochs_masterlist():
     epochs_list = []
