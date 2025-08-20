@@ -9,17 +9,17 @@ from matplotlib import dates as mdates
 end_of_may = datetime.date(2025, 5, 31)
 
 class satellite_mass_lifetime:
-    def __init__(self, id, name, launch_date, reentry_date, mass, orbit, lifetime):
-        self.id = id
-        self.name = name
-        self.launch_date = launch_date
-        self.reentry_date = reentry_date
-        self.mass = mass
-        self.orbit = orbit
-        self.lifetime = lifetime
-
-# TODO: increase lengths of x axes
-# TODO: add legends
+    def __init__(self, row):
+        self.id = int(row[0])
+        self.name = row[1]
+        self.launch_date = datetime.datetime.strptime(row[2], "%Y-%m-%d").date()
+        self.reentry_date = datetime.datetime.strptime(row[3], "%Y-%m-%d").date()
+        self.mass = float(row[4])
+        if row[5] != 'None':
+            self.altitude = float(row[5])
+        else:
+            self.altitude = None
+        self.lifetime = self.reentry_date - self.launch_date
 
 # getters
 def get_id(self):
@@ -32,58 +32,19 @@ def get_reentry_date(self):
     return self.reentry_date
 def get_mass(self):
     return self.mass
-def get_orbit(self):
-    return self.orbit
+def get_altitude(self):
+    return self.altitude
 def get_lifetime(self):
     return self.lifetime
 
-def make_sat_object(row):
-    id = int(row[0])
-    name = row[1]
-    if row[2] != "None":
-        launch_date = datetime.datetime.strptime(row[2], "%Y-%m-%d").date()
-    else:
-        launch_date = None
-    if row[3] != "None":
-        reentry_date = datetime.datetime.strptime(row[3], "%Y-%m-%d").date()
-    else:
-        reentry_date = None
-    if row[4] != "None":
-        mass = float(row[4])
-    else:
-        mass = None
-
-    if row[5] == "-":
-        orbit = None
-    elif row[5] == "CLO" or row[5] == "DSO" or row[5] == "EEO" or row[5] == "HEO" or row[5] == "VHEO":
-        orbit = "HEO"
-    elif "GEO" in row[5]:
-        orbit = "MEO"
-    elif row[5] == "GTO" or row[5] == "MEO":
-        orbit = "MEO"
-    elif "LEO" in row[5]:
-        orbit = "LEO"
-    else:
-        orbit = None
-
-    if launch_date is not None and reentry_date is not None:
-        lifetime = reentry_date - launch_date
-    if launch_date is not None and reentry_date is None:
-        lifetime = datetime.date.today() - launch_date
-    else:
-        lifetime = None
-
-    satellite = satellite_mass_lifetime(id, name, launch_date, reentry_date, mass, orbit, lifetime)
-    return satellite
-
 def get_satellite_list(start_year, end_year):
     satellite_list = []
-    with open("../data/all_satellite_info.csv", "r") as file:
+    with open("../data/all_reentries_info.csv", "r") as file:
         reader = csv.reader(file)
         # pass over headers
         next(reader)
         for row in reader:
-            satellite = make_sat_object(row)
+            satellite = satellite_mass_lifetime(row)
             # make sure within year specification
             if get_launch_date(satellite) is not None and get_launch_date(satellite) <= end_of_may:
                 if start_year <= get_launch_date(satellite).year <= end_year:
@@ -93,12 +54,12 @@ def get_satellite_list(start_year, end_year):
 
 def get_starlink_list(start_year, end_year):
     satellite_list = []
-    with open("../data/all_satellite_info.csv", "r") as file:
+    with open("../data/all_reentries_info.csv", "r") as file:
         reader = csv.reader(file)
         # pass over headers
         next(reader)
         for row in reader:
-            satellite = make_sat_object(row)
+            satellite = satellite_mass_lifetime(row)
             # make sure within year specification
             if get_launch_date(satellite) is not None and get_launch_date(satellite) <= end_of_may:
                 if start_year <= get_launch_date(satellite).year <= end_year:
@@ -109,12 +70,12 @@ def get_starlink_list(start_year, end_year):
 
 def get_not_starlink_list(start_year, end_year):
     satellite_list = []
-    with open("../data/all_satellite_info.csv", "r") as file:
+    with open("../data/all_reentries_info.csv", "r") as file:
         reader = csv.reader(file)
         # pass over headers
         next(reader)
         for row in reader:
-            satellite = make_sat_object(row)
+            satellite = satellite_mass_lifetime(row)
             # make sure within year specification
             if get_launch_date(satellite) is not None and get_launch_date(satellite) <= end_of_may:
                 if start_year <= get_launch_date(satellite).year <= end_year:

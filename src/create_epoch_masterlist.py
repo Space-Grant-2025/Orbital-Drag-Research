@@ -5,8 +5,10 @@ from datetime import timedelta, datetime, timezone
 import ephem
 import queue
 from csv import reader
-from read_tle_by_id import get_date_from_tle
+from read_tle_by_id import *
 from special_tools import day2doy
+
+
 
 class satellite_epochs:
     def __init__(self, id):
@@ -81,7 +83,7 @@ def get_reference(id):
         # pass over header
         csvfile.readline()
         # tuple holding closest altitude and corresponding date, initialized at massive number and date placeholder
-        closest_alt = float(sys.maxsize), datetime(1900, 1, 1, 0, 0, 0, tzinfo= timezone.utc)
+        closest_alt = float(sys.maxsize), datetime.datetime(1900, 1, 1, 0, 0, 0, tzinfo= timezone.utc)
 
         # loop over csv data and hold altitude nearest to 280 and corresponding altitude
         lines = csvfile.readlines()
@@ -92,7 +94,7 @@ def get_reference(id):
         for x in range(start, len(lines)):
             split_row = lines[x].split(',')
             # current values
-            current_alt = int(float(split_row[2])), datetime.strptime(split_row[0], "%Y-%m-%d %H:%M:%S%z"), split_row[9], split_row[10].strip()
+            current_alt = int(float(split_row[2])), datetime.datetime.strptime(split_row[0], "%Y-%m-%d %H:%M:%S%z"), split_row[9], split_row[10].strip()
             # distances of minimum and current values from 280
             curr_distance_from_280 = abs(current_alt[0] - 280)
             min_distance_from_280 = abs(closest_alt[0] - 280)
@@ -104,18 +106,12 @@ def get_reference(id):
 # returns propagated altitude less than 100km and corresponding epoch
 def get_estimated_reentry(id):
     # get julian day of last tle data point
-    with (open(f'../data/starlink_reentries_2020_2025/starlink_tles/tle_{id}.txt', 'r') as file):
-        # pass over headers
-        file.readline()
+    tle_list = process_starlink_tle_data(id)
+    tle_list.sort(key = lambda tle: tle.date)
 
-        # gather last tle data point
-        tles = file.readlines()
-    file_queue = queue.LifoQueue(len(tles))
-    for tle in tles:
-        file_queue.put(tle)
-
-    tle2 = file_queue.get().strip()
-    tle1 = file_queue.get().strip()
+    last_tle = tle_list[len(tle_list)-1]
+    tle1 = last_tle.tle_line1
+    tle2 = last_tle.tle_line2
 
     altitude, date = predict_100km(id, tle1, tle2)
     return altitude, date, tle1, tle2
@@ -155,7 +151,7 @@ def predict_100km(id, tle1, tle2):
         # increment date and make readable to pyephem
         date = date + one_hr
         count += 1
-        str_date = datetime.strftime(date, "%Y-%m-%d %H:%M:%S")
+        str_date = datetime.datetime.strftime(date, "%Y-%m-%d %H:%M:%S")
         ephem_date = ephem.date(str_date)
 
         # compute satellite
@@ -205,12 +201,10 @@ def write_epochs_to_master_csv(epochs_list):
 
     with open(f'../data/epoch_masterlist.csv', 'w') as epochs:
         # write headers
-        epochs.write("NORAD ID,REFERENCE ALTITUDE EPOCH,REFERENCE ALTITUDE (KM),REFERENCE TLE 1,REFERENCE TLE 2,ESTIMATED REENTRY EPOCH,ESTIMATED REENTRY ALTITUDE (KM),LAST TLE LINE 1,LAST TLE LINE 2,PREDICTION EPOCH,PREDICTION ALTITUDE (KM),MIN DST\n")
+        epochs.write("NORAD ID,REFERENCE ALTITUDE EPOCH,REFERENCE ALTITUDE (KM),REFERENCE TLE 1,REFERENCE TLE 2,PREDICTION EPOCH,PREDICTION ALTITUDE (KM),LAST TLE LINE 1,LAST TLE LINE 2,ESTIMATED REENTRY EPOCH,ESTIMATED REENTRY ALTITUDE (KM),MIN DST\n")
 
-        count = 0
         for satellite in epochs_list:
-            count += 1
-            epochs.write(f'{get_id(satellite)},{get_reference_epoch(satellite)},{get_reference_alt(satellite)},{get_reference_line1(satellite)},{get_reference_line2(satellite)},{get_estimated_reentry_epoch(satellite)},{get_estimated_reentry_alt(satellite)},{get_last_tle_line1(satellite)},{get_last_tle_line2(satellite)},{get_prediction_epoch(satellite)},{get_prediction_alt(satellite)},{get_min_dst(satellite)}\n')
+            epochs.write(f'{get_id(satellite)},{get_reference_epoch(satellite)},{get_reference_alt(satellite)},{get_reference_line1(satellite)},{get_reference_line2(satellite)},{get_prediction_epoch(satellite)},{get_prediction_alt(satellite)},{get_last_tle_line1(satellite)},{get_last_tle_line2(satellite)},{get_estimated_reentry_epoch(satellite)},{get_estimated_reentry_alt(satellite)},{get_min_dst(satellite)}\n')
 
 def generate_epochs_masterlist():
     epochs_list = []
@@ -224,8 +218,8 @@ def generate_epochs_masterlist():
             id = id.strip()
             satellite = satellite_epochs(id)
             epochs_list.append(satellite)
-            count += 1
             print(f'{count}: {id}')
+            count += 1
 
     write_epochs_to_master_csv(epochs_list)
 

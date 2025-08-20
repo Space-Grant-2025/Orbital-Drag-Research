@@ -7,7 +7,7 @@ from colormaps import *
 
 # TODO: all satellite reentry lifetime altitude color bar starlink squares, other circles
 def plot_altitude_mass_lifetime(start_year, end_year):
-    with open("../data/all_reentries_info.csv", 'r') as file:
+    with open("../data/all_satellite_info.csv", 'r') as file:
         csv_reader = reader(file)
         # pass over headers
         next(csv_reader)
@@ -56,8 +56,8 @@ def plot_altitude_mass_lifetime(start_year, end_year):
     ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=False))
     plot.savefig('../data/lifetime_graphs/altitude_mass_lifetime.png', format='png')
 
-
-# lifetime of satellites by mass
+# outdated
+'''# lifetime of satellites by mass
 def plot_prelim_altitude_mass_lifetime(start_year, end_year):
     other_list = get_not_starlink_list(start_year, end_year)
     none_mass_list = []
@@ -116,7 +116,7 @@ def plot_prelim_altitude_mass_lifetime(start_year, end_year):
     plot.xlabel("Mass (kg)")
     plot.xscale('log')
     ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=False))
-    plot.savefig('../data/lifetime_graphs/prelim_altitude_mass_lifetime.png', format='png')
+    plot.savefig('../data/lifetime_graphs/prelim_altitude_mass_lifetime.png', format='png')'''
 
 if __name__ == '__main__':
     if not os.path.exists("../data/lifetime_graphs/"):

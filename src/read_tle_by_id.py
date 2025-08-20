@@ -286,4 +286,4 @@ if __name__ == '__main__':
 
 
     read_starlink_tles()
-    # read_other_tles()
+    read_other_tles()

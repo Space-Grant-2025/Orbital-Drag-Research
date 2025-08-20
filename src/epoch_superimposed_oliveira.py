@@ -5,14 +5,14 @@ from special_tools import day2doy
 from numpy import zeros, linspace
 from colormaps import idl39_w, plasma_w
 
-count = zeros((20, 16))
-
 max_height = 400
 min_height = 0
 num_bins = 20
 bin_height = (max_height - min_height) / num_bins
+num_days = 16
 
-num_days = 15
+count = zeros((num_bins, num_days))
+
 
 def get_data():
     with open('../data/external_datasets/oliveira_data.txt') as data:
