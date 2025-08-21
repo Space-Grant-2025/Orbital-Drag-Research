@@ -15,6 +15,7 @@ count = zeros((num_bins, num_days))
 
 
 def get_data():
+    excluded = 0
     with open('../data/external_datasets/oliveira_data.txt') as data:
         lines = data.readlines()[2:]
         for line in lines:
@@ -53,21 +54,25 @@ def get_data():
 
                         if min_height < altitude <= bin_height:
                             if 0 < day_delta < num_days:
-
                                 count[altitude, day_delta] = count[altitude, day_delta] + 1
+                            else:
+                                excluded += 1
+                        else:
+                            excluded += 1
+    print(f"Excluded {excluded} epochs")
     return count
 
 def plot_data():
     count = get_data()
-    plot.pcolormesh(count, cmap = plasma_w, vmin = 0, vmax = 300, label = 'Number of Instances')
+    plot.pcolormesh(count, cmap = plasma_w, vmin = 0, vmax = 300)
     plot.yticks(linspace(0, bin_height, 9), linspace(min_height, max_height, 9))
 
     plot.xlabel('Days After Reference Altitude')
     plot.ylabel('Altitude (km)')
     plot.title(f"Reentry Propagation Error for Reentered Starlinks")
 
-    plot.colorbar()
-    plot.show()
+    plot.colorbar(label='Number of Instances')
+    plot.savefig("../data/epoch_graphs/superimposed_epoch_oliveira.png")
 
 if __name__ == '__main__':
     plot_data()

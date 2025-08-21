@@ -32,7 +32,7 @@ def get_tle(id):
         # send http packet with login credentials and save response
         response = session.post(uri_base + request_login, data = site_credentials)
 
-        # 200 is good, 400 is error on our end, 500 is error on their end
+        # 200 is good, 400 is error on my end, 500 is error on their end
         if response.status_code != 200:
             print(f"{response}\n{response.text}\nPOST fail on login")
         # raise error for bad login

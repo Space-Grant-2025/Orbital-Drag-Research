@@ -9,17 +9,28 @@ max_height = 200
 min_height = -max_height
 num_bins = 20
 bin_height = int((max_height * 2) / num_bins)
-num_days = 30    # past reference epoch
+num_days = 21    # past reference epoch
+
+min_dst = -100
 
 count = zeros((num_bins + 1, num_days + 1))
 
 def get_data():
-    with open ('../data/starlink_reentries_list.txt', 'r') as file:
+    id_list = []
+    with open ('../data/epoch_masterlist.csv', 'r') as file:
+        csv_reader = csv.reader(file)
         # pass over headers
-        next(file)
+        next(csv_reader)
 
-        for line in file:
-            id = int(line.strip())
+        for line in csv_reader:
+            id = int(line[0])
+            dst = float(line[11])
+            if dst <= min_dst:
+                id_list.append(id)
+            else:
+                print(dst)
+
+        for id in id_list:
 
             with open(f'../data/starlink_reentries_2020_2025/epoch_files/epoch_{id}.csv', 'r') as file:
                 csv_reader = csv.reader(file)
@@ -37,27 +48,24 @@ def get_data():
                         current_day = datetime.datetime.strptime(row[0], "%Y-%m-%d %H:%M:%S%z")
                         alt_delta = float(row[3])
                         alt_bin = int((alt_delta - min_height) / bin_height)
-                        #alt_delta = int((float(row[3]) - min_height) / bin_height)
-                        day_delta = (current_day - reference_day).days
+                        day_bin = (current_day - reference_day).days
 
                         if 0 <= alt_bin <= bin_height:
-                            if 0 <= day_delta < num_days:
-                                count[alt_bin][day_delta] += 1
-                            else:
-                                print(f"{day_delta} bin exempted: {id}")
+                            if 0 <= day_bin < num_days:
+                                count[alt_bin][day_bin] += 1
     return count
 
 def plot_data():
     count = get_data()
-    plot.pcolormesh(count, cmap = plasma_w, vmin = 0, vmax = 300, label = 'Number of Instances')
+    plot.pcolormesh(count, cmap = plasma_w, vmin = 0, vmax = 300)
     plot.yticks(linspace(0, bin_height, 9), linspace(-max_height, max_height, 9))
 
     plot.xlabel('Days After Reference Altitude')
     plot.ylabel('Prediction-Estimated Altitude Difference')
     plot.title(f"Reentry Propagation Error for Reentered Starlinks")
 
-    plot.colorbar()
-    plot.savefig('../data/starlink_reentries_2020_2025/altitude_analysis_starlink.png', format ='png')
+    plot.colorbar(label = 'Number of Instances')
+    plot.savefig('../data/epoch_graphs/altitude_analysis_starlink.png', format ='png')
 
 if __name__ == '__main__':
     plot_data()
