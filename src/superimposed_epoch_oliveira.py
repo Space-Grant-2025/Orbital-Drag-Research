@@ -69,7 +69,7 @@ def plot_data():
 
     plot.xlabel('Days After Reference Altitude')
     plot.ylabel('Altitude (km)')
-    plot.title(f"Reentry Propagation Error for Reentered Starlinks")
+    plot.title(f"Superimposed Trajectory of Reentered Starlinks")
 
     plot.colorbar(label='Number of Instances')
     plot.savefig("../data/epoch_graphs/superimposed_epoch_oliveira.png")

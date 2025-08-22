@@ -51,10 +51,11 @@ def get_reference_epoch(target_id):
         for row in csv_reader:
             current_id = int(row[0])
             if current_id == target_id:
-                reference_epoch = row[1]
+                reference_epoch = datetime.datetime.strptime(row[1], "%Y-%m-%d %H:%M:%S%z")
                 ref_line1 = row[3]
                 ref_line2 = row[4]
-                return datetime.datetime.strptime(reference_epoch, "%Y-%m-%d %H:%M:%S%z"), ref_line1, ref_line2
+                return reference_epoch, ref_line1, ref_line2
+    return None, None, None
 
 def read_data_from_csv(id):
     epoch_list = []

@@ -73,4 +73,4 @@ def plot_data_vertical():
     plot.savefig('../data/epoch_graphs/epoch_analysis_starlink.png', format='png')
 
 if __name__ == '__main__':
-    plot_data_horizontal()
+    plot_data_vertical()

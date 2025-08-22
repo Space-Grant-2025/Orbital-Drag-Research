@@ -11,44 +11,37 @@ max_height = 400
 min_height = 0
 num_bins = 20
 bin_height = (max_height - min_height) / num_bins
-num_days = 16
+num_days = 20
 
 count = zeros((num_bins, num_days))
 
 def get_data():
-    excluded = 0
-    with open("../data/epoch_masterlist.csv") as masterlist:
-        master_reader = csv.reader(masterlist)
+    with open("../data/starlink_reentries_list.txt", "r") as file:
         # pass over headers
-        next(master_reader)
+        next(file)
 
-        for row in master_reader:
-            id = row[0]
-            print(id)
-            reference_epoch = datetime.strptime(row[1], "%Y-%m-%d %H:%M:%S%z")
+        for line in file:
+            id = int(line)
 
-            with open(f"../data/starlink_reentries_2020_2025/epoch_files/epoch_{id}.csv") as epoch_file:
+            with open(f"../data/starlink_reentries_2020_2025/propagations/propagation_{id}.csv") as epoch_file:
                 epoch_reader = csv.reader(epoch_file)
                 # pass over headers
                 next(epoch_reader)
 
+                # get references
+                first_line = next(epoch_reader)
+                reference_epoch = datetime.strptime(first_line[0], "%Y-%m-%d %H:%M:%S")
+
                 for row in epoch_reader:
-                    current_epoch = datetime.strptime(row[0], "%Y-%m-%d %H:%M:%S%z")
-                    # make sure current time is after 280km
-                    if current_epoch >= reference_epoch:
+                    current_epoch = datetime.strptime(row[0], "%Y-%m-%d %H:%M:%S")
 
-                        day_delta = (current_epoch - reference_epoch).days
-                        altitude = float(row[1])
-                        altitude_bin = int((altitude - min_height) / bin_height)
+                    day_delta = (current_epoch - reference_epoch).days
+                    altitude = float(row[1])
+                    altitude_bin = int((altitude - min_height) / bin_height)
 
-                        if min_height < altitude_bin <= bin_height:
-                            if 0 < day_delta < num_days:
-                                count[altitude_bin, day_delta] += 1
-                            else:
-                                excluded += 1
-                        else:
-                            excluded += 1
-    print(f"Excluded {excluded} epochs")
+                    if min_height < altitude_bin <= bin_height:
+                        if 0 <= day_delta < num_days:
+                            count[altitude_bin, day_delta] += 1
     return count
 
 def plot_data():
@@ -58,7 +51,7 @@ def plot_data():
 
     plot.xlabel('Days After Reference Altitude')
     plot.ylabel('Altitude (km)')
-    plot.title(f"Reentry Propagation Error for Reentered Starlinks")
+    plot.title(f"Superimposed Trajectory of Reentered Starlinks")
 
     plot.colorbar(label='Number of Instances')
     plot.savefig("../data/epoch_graphs/superimposed_epoch_starlink.png")
