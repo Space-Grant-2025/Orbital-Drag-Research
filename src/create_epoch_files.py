@@ -39,7 +39,7 @@ def make_prediction(id, ref_line1, ref_line2, current_date):
         altitude = satellite.elevation / 1000
         return altitude
 
-    except RuntimeError:
+    except:
         return None
 
 def get_reference_epoch(target_id):

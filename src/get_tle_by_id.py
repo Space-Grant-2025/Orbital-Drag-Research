@@ -78,9 +78,6 @@ def get_reentered_starlink_tles():
             tle = get_tle(id)
             write_reentered_starlink_to_file(tle, id)
 
-            # jitter to keep computer awake
-            keyboard.press('shift')
-
             # progress tracker
             print(f'{count}: {id}')
             count += 1
@@ -121,10 +118,6 @@ def get_other_reentry_tles():
             tle = get_tle(id)
             write_other_reentries_to_file(tle, id)
 
-            # jitter to keep computer awake
-            pyautogui.press('enter')
-
-
             # progress tracker
             print(f'{count}: {id}')
             count += 1
@@ -139,4 +132,4 @@ def get_other_reentry_tles():
 
 if __name__ == '__main__':
     get_reentered_starlink_tles()
-    get_other_reentry_tles()
+    # get_other_reentry_tles()
