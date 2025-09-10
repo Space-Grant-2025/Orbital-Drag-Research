@@ -30,10 +30,10 @@ def get_data():
 
                 # get references
                 first_line = next(epoch_reader)
-                reference_epoch = datetime.strptime(first_line[0], "%Y-%m-%d %H:%M:%S")
+                reference_epoch = datetime.strptime(first_line[0], "%Y-%m-%d %H:%M:%S%z")
 
                 for row in epoch_reader:
-                    current_epoch = datetime.strptime(row[0], "%Y-%m-%d %H:%M:%S")
+                    current_epoch = datetime.strptime(row[0], "%Y-%m-%d %H:%M:%S%z")
 
                     day_delta = (current_epoch - reference_epoch).days
                     altitude = float(row[1])
@@ -54,7 +54,7 @@ def plot_data():
     plot.title(f"Superimposed Trajectory of Reentered Starlinks")
 
     plot.colorbar(label='Number of Instances')
-    plot.savefig("../data/epoch_graphs/superimposed_epoch_starlink.png")
+    plot.savefig("../data/epoch_graphs/superimposed_trajectory.png")
 
 if __name__ == '__main__':
     plot_data()
