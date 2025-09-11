@@ -21,21 +21,22 @@ class satellite_mass_lifetime:
             self.altitude = None
         self.lifetime = self.reentry_date - self.launch_date
 
-# getters
-def get_id(self):
-    return self.id
-def get_name(self):
-    return self.name
-def get_launch_date(self):
-    return self.launch_date
-def get_reentry_date(self):
-    return self.reentry_date
-def get_mass(self):
-    return self.mass
-def get_altitude(self):
-    return self.altitude
-def get_lifetime(self):
-    return self.lifetime
+    # getters
+    def get_id(self):
+        return self.id
+    def get_name(self):
+        return self.name
+    def get_launch_date(self):
+        return self.launch_date
+    def get_reentry_date(self):
+        return self.reentry_date
+    def get_mass(self):
+        return self.mass
+    def get_altitude(self):
+        return self.altitude
+    def get_lifetime(self):
+        return self.lifetime
+
 
 def get_satellite_list(start_year, end_year):
     satellite_list = []
@@ -46,8 +47,8 @@ def get_satellite_list(start_year, end_year):
         for row in reader:
             satellite = satellite_mass_lifetime(row)
             # make sure within year specification
-            if get_launch_date(satellite) is not None and get_launch_date(satellite) <= end_of_may:
-                if start_year <= get_launch_date(satellite).year <= end_year:
+            if satellite.get_launch_date() is not None and satellite.get_launch_date() <= end_of_may:
+                if start_year <= satellite.get_launch_date().year <= end_year:
                     satellite_list.append(satellite)
 
     return satellite_list
@@ -61,10 +62,10 @@ def get_starlink_list(start_year, end_year):
         for row in reader:
             satellite = satellite_mass_lifetime(row)
             # make sure within year specification
-            if get_launch_date(satellite) is not None and get_launch_date(satellite) <= end_of_may:
-                if start_year <= get_launch_date(satellite).year <= end_year:
+            if satellite.get_launch_date() is not None and satellite.get_launch_date() <= end_of_may:
+                if start_year <= satellite.get_launch_date().year <= end_year:
                     # check satellite is starlink
-                    if "STARLINK" in get_name(satellite):
+                    if "STARLINK" in satellite.get_name():
                         satellite_list.append(satellite)
     return satellite_list
 
@@ -77,10 +78,10 @@ def get_not_starlink_list(start_year, end_year):
         for row in reader:
             satellite = satellite_mass_lifetime(row)
             # make sure within year specification
-            if get_launch_date(satellite) is not None and get_launch_date(satellite) <= end_of_may:
-                if start_year <= get_launch_date(satellite).year <= end_year:
+            if satellite.get_launch_date() is not None and satellite.get_launch_date() <= end_of_may:
+                if start_year <= satellite.get_launch_date().year <= end_year:
                     # check satellite is not starlink
-                    if "STARLINK" not in get_name(satellite):
+                    if "STARLINK" not in satellite.get_name():
                         satellite_list.append(satellite)
     return satellite_list
 
@@ -93,18 +94,19 @@ def get_year_dict(start_year, end_year):
         year_nums[year] = 0
     return year_nums
 
-# fills with lifetime
-def fill_dict_sat_nums(satellite_list, start_year, end_year):
+
+
+def fill_year_dict_sat_nums(satellite_list, start_year, end_year):
     year_nums = get_year_dict(start_year, end_year)
 
     for satellite in satellite_list:
-        if get_launch_date(satellite) is not None:
-            launch_year = int(get_launch_date(satellite).year)
+        if satellite.get_launch_date() is not None:
+            launch_year = int(satellite.get_launch_date().year)
             # if no reentry, assume satellite is still orbiting
-            if get_reentry_date(satellite) is None or get_reentry_date(satellite).year >= end_year:
+            if satellite.get_reentry_date() is None or satellite.get_reentry_date().year >= end_year:
                 reentry_year = end_year
             else:
-                reentry_year = int(get_reentry_date(satellite).year)
+                reentry_year = int(satellite.get_reentry_date().year)
 
             for x in range(reentry_year - launch_year + 1):
                 year_nums[launch_year + x] += 1
@@ -113,13 +115,13 @@ def fill_dict_sat_nums(satellite_list, start_year, end_year):
     sat_years = year_nums.keys()
     return sat_nums, sat_years
 
-def fill_dict_launch_nums(satellite_list, start_year, end_year):
+def fill_year_dict_launch_nums(satellite_list, start_year, end_year):
     year_nums = get_year_dict(start_year, end_year)
 
     # fill with num satellites
     for satellite in satellite_list:
-        if get_launch_date(satellite) is not None and get_launch_date(satellite) <= datetime.date.today():
-            launch_year = int(get_launch_date(satellite).year)
+        if satellite.get_launch_date() is not None and satellite.get_launch_date() <= datetime.date.today():
+            launch_year = int(satellite.get_launch_date().year)
             year_nums[launch_year] += 1
 
     nums_list = year_nums.values()
@@ -127,14 +129,14 @@ def fill_dict_launch_nums(satellite_list, start_year, end_year):
 
     return nums_list, year_list
 
-def fill_dict_reentry_nums(satellite_list, start_year, end_year):
+def fill_year_dict_reentry_nums(satellite_list, start_year, end_year):
     year_nums = get_year_dict(start_year, end_year)
 
     # fill with num satellites
     count_reentries = 0
     for satellite in satellite_list:
-        if get_reentry_date(satellite) is not None and get_reentry_date(satellite) <= datetime.date(2025, 5, 31):
-            reentry_year = int(get_reentry_date(satellite).year)
+        if satellite.get_reentry_date() is not None and satellite.get_reentry_date() <= datetime.date(2025, 5, 31):
+            reentry_year = int(satellite.get_reentry_date().year)
             year_nums[reentry_year] += 1
             count_reentries += 1
 
@@ -145,19 +147,19 @@ def fill_dict_reentry_nums(satellite_list, start_year, end_year):
     return nums_list, year_list
 
 # fills with lifetime
-def fill_dict_mass_nums(satellite_list, start_year, end_year):
+def fill_year_dict_mass_nums(satellite_list, start_year, end_year):
     year_masses = get_year_dict(start_year, end_year)
 
     # fill with mass
     for satellite in satellite_list:
-        if get_mass(satellite) is not None and get_launch_date(satellite) is not None and get_launch_date(satellite) <= end_of_may:
-            mass = get_mass(satellite) / 1_000_000
-            launch_year = int(get_launch_date(satellite).year)
+        if satellite.get_mass() is not None and satellite.get_launch_date() is not None and satellite.get_launch_date() <= end_of_may:
+            mass = satellite.get_mass() / 1_000_000
+            launch_year = int(satellite.get_launch_date().year)
             # if no reentry, assume satellite is still orbiting
-            if get_reentry_date(satellite) is None or get_reentry_date(satellite).year > end_year:
+            if satellite.get_reentry_date() is None or satellite.get_reentry_date().year > end_year:
                 reentry_year = end_year
             else:
-                reentry_year = int(get_reentry_date(satellite).year)
+                reentry_year = int(satellite.get_reentry_date().year)
 
             for x in range(reentry_year - launch_year + 1):
                 year_masses[launch_year + x] += mass
@@ -171,9 +173,9 @@ def plot_stacked_reentries_time(start_year, end_year):
     starlink_list = get_starlink_list(start_year, end_year)
 
     print("Not Starlink")
-    other_nums, other_years = fill_dict_reentry_nums(other_list, start_year, end_year)
+    other_nums, other_years = fill_year_dict_reentry_nums(other_list, start_year, end_year)
     print("Starlink")
-    starlink_nums, starlink_years = fill_dict_reentry_nums(starlink_list, start_year, end_year)
+    starlink_nums, starlink_years = fill_year_dict_reentry_nums(starlink_list, start_year, end_year)
 
     fig, ax = plot.subplots(layout='constrained', figsize = (9, 4.8))
     # x axis (dates)
@@ -229,7 +231,7 @@ def plot_f10_starlink_reentries_time(start_date, end_date):
 def plot_launches_per_year(start_year, end_year):
     satellite_list = get_satellite_list(start_year, end_year)
 
-    nums_list, year_list = fill_dict_launch_nums(satellite_list, start_year, end_year)
+    nums_list, year_list = fill_year_dict_launch_nums(satellite_list, start_year, end_year)
 
     fig, ax = plot.subplots(layout='constrained', figsize=(9, 4.8))
     plot.bar(year_list, nums_list)
@@ -243,8 +245,8 @@ def plot_stacked_launches_per_year(start_year, end_year):
     starlink_list = get_starlink_list(start_year, end_year)
 
     # fill dicts with kaunch data
-    other_nums, other_years = fill_dict_launch_nums(other_list, start_year, end_year)
-    starlink_nums, starlink_years = fill_dict_launch_nums(starlink_list, start_year, end_year)
+    other_nums, other_years = fill_year_dict_launch_nums(other_list, start_year, end_year)
+    starlink_nums, starlink_years = fill_year_dict_launch_nums(starlink_list, start_year, end_year)
 
     fig, ax = plot.subplots(layout='constrained', figsize=(9, 4.8))
     ax.bar(starlink_years, starlink_nums, color='blue', label='Starlinks')
@@ -261,9 +263,9 @@ def plot_mass_launched_per_year(start_year, end_year):
 
     # fill with satellite masses
     for satellite in satellite_list:
-        if get_launch_date(satellite) is not None and get_mass(satellite) is not None:
-            launch_year = int(get_launch_date(satellite).year)
-            year_nums[launch_year] += get_mass(satellite) / 1_000_000
+        if satellite.get_launch_date() is not None and satellite.get_launch_date() is not None:
+            launch_year = int(satellite.get_launch_date().year)
+            year_nums[launch_year] += satellite.get_mass() / 1_000_000
 
     mass_list = year_nums.values()
     year_list = year_nums.keys()
@@ -277,7 +279,7 @@ def plot_mass_launched_per_year(start_year, end_year):
 
 def plot_satellites_in_space(start_year, end_year):
     satellite_list = get_satellite_list(start_year, end_year)
-    sat_nums, sat_years = fill_dict_sat_nums(satellite_list, start_year, end_year)
+    sat_nums, sat_years = fill_year_dict_sat_nums(satellite_list, start_year, end_year)
 
     fig, ax = plot.subplots(layout='constrained', figsize=(9, 4.8))
     plot.figure(figsize = (9, 4.8))
@@ -292,8 +294,8 @@ def plot_stacked_satellites_in_space(start_year, end_year):
     starlink_list = get_starlink_list(start_year, end_year)
 
     # satellite dict
-    other_nums, other_years = fill_dict_sat_nums(other_list, start_year, end_year)
-    starlink_nums, starlink_years = fill_dict_sat_nums(starlink_list, start_year, end_year)
+    other_nums, other_years = fill_year_dict_sat_nums(other_list, start_year, end_year)
+    starlink_nums, starlink_years = fill_year_dict_sat_nums(starlink_list, start_year, end_year)
 
 
     fig, ax = plot.subplots(layout='constrained', figsize=(9, 4.8))
@@ -311,14 +313,14 @@ def plot_stacked_satellites_in_space_f10(start_year, end_year):
     starlink_list = get_starlink_list(start_year, end_year)
 
     # get plot dict
-    other_nums, other_years = fill_dict_sat_nums(other_list, start_year, end_year)
-    starlink_nums, starlink_years = fill_dict_sat_nums(starlink_list, start_year, end_year)
+    other_nums, other_years = fill_year_dict_sat_nums(other_list, start_year, end_year)
+    starlink_nums, starlink_years = fill_year_dict_sat_nums(starlink_list, start_year, end_year)
     f10_values, f10_years = get_average_f10(start_year, end_year)
 
     fig, sat_axis = plot.subplots(layout='constrained', figsize = (9, 4.8))
     f10_axis = sat_axis.twinx()
 
-    plot.title("Satellites in Space by Year and F10 Values")
+    plot.title("Satellites in Space by Month and F10 Values")
     sat_axis.set_xlabel("Year")
     sat_axis.set_ylabel("Number of Satellites")
 
@@ -335,7 +337,7 @@ def plot_stacked_satellites_in_space_f10(start_year, end_year):
 def plot_mass_in_space(start_year, end_year):
     satellite_list = get_satellite_list(start_year, end_year)
 
-    mass_list, year_list = fill_dict_mass_nums(satellite_list, start_year, end_year)
+    mass_list, year_list = fill_year_dict_mass_nums(satellite_list, start_year, end_year)
 
     fig, ax = plot.subplots(layout='constrained', figsize=(9, 4.8))
     plot.bar(year_list, mass_list)
@@ -348,8 +350,8 @@ def plot_stacked_mass_in_space(start_year, end_year):
     other_list = get_not_starlink_list(start_year, end_year)
     starlink_list = get_starlink_list(start_year, end_year)
 
-    other_mass, other_years = fill_dict_mass_nums(other_list, start_year, end_year)
-    starlink_mass, starlink_years = fill_dict_mass_nums(starlink_list, start_year, end_year)
+    other_mass, other_years = fill_year_dict_mass_nums(other_list, start_year, end_year)
+    starlink_mass, starlink_years = fill_year_dict_mass_nums(starlink_list, start_year, end_year)
 
 
     fig, ax = plot.subplots(layout='constrained', figsize=(9, 4.8))
@@ -365,8 +367,8 @@ def plot_stacked_mass_in_space_f10(start_year, end_year):
     other_list = get_not_starlink_list(start_year, end_year)
     starlink_list = get_starlink_list(start_year, end_year)
 
-    other_mass, other_years = fill_dict_mass_nums(other_list, start_year, end_year)
-    starlink_mass, starlink_years = fill_dict_mass_nums(starlink_list, start_year, end_year)
+    other_mass, other_years = fill_year_dict_mass_nums(other_list, start_year, end_year)
+    starlink_mass, starlink_years = fill_year_dict_mass_nums(starlink_list, start_year, end_year)
 
     f10_values, f10_years = get_average_f10(start_year, end_year)
 
@@ -389,7 +391,9 @@ def plot_stacked_mass_in_space_f10(start_year, end_year):
 
 if __name__ == '__main__':
     plot_stacked_launches_per_year(1957, 2025)
-    plot_stacked_satellites_in_space_f10(1957, 2025)
+    plot_stacked_satellites_in_space(1957, 2025)
+    plot_stacked_satellites_in_space_f10(2015, 2025)
+    plot_stacked_mass_in_space(1957, 2025)
     plot_stacked_mass_in_space_f10(1957, 2025)
     plot_stacked_reentries_time(1957, 2025)
     plot_f10_starlink_reentries_time(datetime.date(2020, 1, 1), datetime.date(2025, 5, 31))

@@ -7,7 +7,7 @@ from csv import reader
 
 from numba.core.typing import Context
 import pyautogui
-from create_mass_reentry_plots import *
+from create_year_mass_reentry_plots import *
 
 # given a NORAD ID, returns the TLE data for the corresponding satellite
 def get_tle(id):
