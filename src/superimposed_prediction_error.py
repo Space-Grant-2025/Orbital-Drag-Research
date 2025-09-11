@@ -26,6 +26,8 @@ def get_data():
         reference_epoch = datetime.strptime(first_line[0], "%Y-%m-%d %H:%M:%S%z")
         reference_reentry = datetime.strptime(first_line[2], "%Y-%m-%d %H:%M:%S%z")
 
+        # current altitude x days after ref epoch x prediction - current propagation
+
         for row in reader:
             current_epoch = datetime.strptime(row[0], "%Y-%m-%d %H:%M:%S%z")
             current_prediction = datetime.strptime(row[2], "%Y-%m-%d %H:%M:%S%z")
