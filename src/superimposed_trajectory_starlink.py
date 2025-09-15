@@ -15,6 +15,9 @@ num_days = 20
 
 count = zeros((num_bins, num_days))
 
+
+# TODO: recreate propagation files
+
 def get_data():
     with open("../data/starlink_reentries_list.txt", "r") as file:
         # pass over headers
@@ -51,10 +54,10 @@ def plot_data():
 
     plot.xlabel('Days After Reference Altitude')
     plot.ylabel('Altitude (km)')
-    plot.title(f"Superimposed Trajectory of Reentered Starlinks")
+    plot.title(f"Superimposed Trajectory of Reentered Starlinks 01/01/2020-05/31/2025")
 
     plot.colorbar(label='Number of Instances')
-    plot.savefig("../data/epoch_graphs/superimposed_trajectory.png")
+    plot.savefig("../data/epoch_graphs/noooooooo.png")
 
 if __name__ == '__main__':
     plot_data()

@@ -390,12 +390,13 @@ def plot_stacked_mass_in_space_f10(start_year, end_year):
     plot.savefig('../data/mass_graphs/stacked_mass_in_space_f10.png', format='png')
 
 if __name__ == '__main__':
-    plot_stacked_launches_per_year(1957, 2025)
+    '''plot_stacked_launches_per_year(1957, 2025)
     plot_stacked_satellites_in_space(1957, 2025)
     plot_stacked_satellites_in_space_f10(2015, 2025)
     plot_stacked_mass_in_space(1957, 2025)
     plot_stacked_mass_in_space_f10(1957, 2025)
-    plot_stacked_reentries_time(1957, 2025)
     plot_f10_starlink_reentries_time(datetime.date(2020, 1, 1), datetime.date(2025, 5, 31))
+    plot_stacked_reentries_time(1957, 2025)'''
+    plot_mass_launched_per_year(1957, 2025)
 
 

@@ -5,7 +5,6 @@ from get_satellite_masses_file import *
 from csv import reader
 from colormaps import *
 
-# TODO: all satellite reentry lifetime altitude color bar starlink squares, other circles
 def plot_altitude_mass_lifetime(start_year, end_year):
     with open("../data/all_satellite_info.csv", 'r') as file:
         csv_reader = reader(file)
