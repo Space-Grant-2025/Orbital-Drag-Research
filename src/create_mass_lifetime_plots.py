@@ -6,7 +6,7 @@ from csv import reader
 from colormaps import *
 
 def plot_altitude_mass_lifetime(start_year, end_year):
-    with open("../data/all_satellite_info.csv", 'r') as file:
+    with open("../data/all_reentries_info.csv", 'r') as file:
         csv_reader = reader(file)
         # pass over headers
         next(csv_reader)
