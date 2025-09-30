@@ -98,7 +98,7 @@ def make_year_dict(start_year, end_year):
         year_nums[year] = 0
     return year_nums
 
-# returns launch_year, reentry_year adjust for timeframe
+# returns launch_year, reentry_year adjusted for timeframe
 def set_launch_reentry_from_timeframe(satellite, start_year, end_year):
     launch_year = int(satellite.get_launch_date().year)
     reentry_year = int(satellite.get_reentry_date().year)
