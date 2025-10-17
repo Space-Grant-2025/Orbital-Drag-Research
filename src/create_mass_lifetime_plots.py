@@ -1,6 +1,6 @@
 import os
 import matplotlib
-from create_year_mass_reentry_plots import *
+from year_mass_reentry_setup import *
 from get_satellite_masses_file import *
 from csv import reader
 from colormaps import *

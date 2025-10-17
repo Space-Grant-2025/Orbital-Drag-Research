@@ -3,7 +3,7 @@ import re
 import csv
 import matplotlib.pyplot as plot
 from special_tools import smooth, day2doy
-from create_year_mass_reentry_plots import *
+from year_mass_reentry_setup import *
 
 class f10_data:
     def __init__(self, date, value):

@@ -1,35 +1,37 @@
 import csv
 import datetime
-import pyautogui
+
+end_of_may = datetime.date(2025, 5, 31)
 
 class satellite_mass:
-    def __init__(self, id, name, launch_date, reentry_date, mass, orbit):
+    def __init__(self, id, name, launch_date, reentry_date, mass, orbit, pl_name):
         self.id = id
         self.name = name
         self.launch_date = launch_date
         self.reentry_date = reentry_date
         self.mass = mass
         self.orbit = orbit
+        self.pl_name = pl_name
 
-# getters
-def get_id(self):
-    return self.id
-def get_name(self):
-    return self.name
-def get_launch_date(self):
-    return self.launch_date
-def get_reentry_date(self):
-    return self.reentry_date
-def get_mass(self):
-    return self.mass
-def get_lifetime(self):
-    return self.lifetime
-def get_orbit(self):
-    return self.orbit
+    # getters
+    def get_id(self):
+        return self.id
+    def get_name(self):
+        return self.name
+    def get_launch_date(self):
+        return self.launch_date
+    def get_reentry_date(self):
+        return self.reentry_date
+    def get_mass(self):
+        return self.mass
+    def get_orbit(self):
+        return self.orbit
+    def get_plname(self):
+        return self.pl_name
 
 def create_satellite_list():
     satellite_list = []
-    with open(f'../data/payloads.csv', 'r') as mass_file:
+    with open(f'../data/external_datasets/space_track_payloads.csv', 'r') as mass_file:
         mass_reader = csv.reader(mass_file)
         # pass over headers
         next(mass_reader)
@@ -46,6 +48,10 @@ def create_satellite_list():
                 satellite_reentry_date = datetime.datetime.strptime(row[3], "%Y-%m-%d").date()
             else:
                 satellite_reentry_date = None
+
+            # if after 5-31-2025, continue
+            if satellite_launch_date is not None and satellite_launch_date >= end_of_may:
+                continue
 
             with open('../data/external_datasets/mcdowell_satcat.csv', 'r') as satcat_file:
                 satcat_reader = csv.reader(satcat_file)
@@ -65,10 +71,10 @@ def create_satellite_list():
                         if row[19].isdigit():
                             mass = float(row[21])
                         orbit = row[39]
+                        pl_name = row[6]
             print(satellite_launch_date)
-            satellite = satellite_mass(satellite_id, name, satellite_launch_date, satellite_reentry_date, mass, orbit)
+            satellite = satellite_mass(satellite_id, name, satellite_launch_date, satellite_reentry_date, mass, orbit, pl_name)
             satellite_list.append(satellite)
-            pyautogui.press('shift')
     return satellite_list
 
 def create_date(date_str):
@@ -92,9 +98,9 @@ def create_date(date_str):
 def write_satellite_list_to_file():
     satellite_list = create_satellite_list()
     with open('../data/all_satellite_info.csv', 'w') as satellite_file:
-        satellite_file.write("NORAD CAT ID,NAME,LAUNCH DATE,REENTRY DATE,DRY MASS (KG), ORBIT\n")
+        satellite_file.write("NORAD CAT ID,NAME,LAUNCH DATE,REENTRY DATE,DRY MASS (KG),ORBIT,PLNAME\n")
         for satellite in satellite_list:
-            satellite_file.write(f"{get_id(satellite)},{get_name(satellite)},{get_launch_date(satellite)},{get_reentry_date(satellite)},{get_mass(satellite)},{get_orbit(satellite)}\n")
+            satellite_file.write(f"{satellite.get_id()},{satellite.get_name()},{satellite.get_launch_date()},{satellite.get_reentry_date()},{satellite.get_mass()},{satellite.get_orbit()},{satellite.get_plname()}\n")
 
 if __name__ == '__main__':
     write_satellite_list_to_file()
