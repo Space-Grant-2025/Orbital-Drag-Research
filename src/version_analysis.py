@@ -2,6 +2,8 @@ from datetime import datetime
 from datetime import date
 import csv
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap, BoundaryNorm
+from matplotlib.cm import ScalarMappable
 
 end_of_may = date(2025, 5, 31)
 min_date = date.today()
@@ -109,10 +111,22 @@ def make_graph():
             sat_dict[sat.version] += 1
         else:
             print(sat.version)
+    fig, ax = plt.subplots()
     plt.title(f"Starlink Satellite Versions (n = {sum(sat_dict.values())})")
     plt.xlabel("Starlink Version")
     plt.ylabel("Counts")
     plt.bar(sat_dict.keys(), sat_dict.values(), label = version_masses, color = ["blue", "green", "orange", "red"])
+
+    total_v09_mass = (227 * sat_dict["v0.9"]) * 0.001
+    total_v1_mass = (260 * sat_dict["v1"]) * 0.001
+    total_v15_mass = (306 * sat_dict["v1.5"]) * 0.001
+    total_v2_mini_mass = (1240 * sat_dict["v2 mini"]) * 0.001
+    bounds = [0, total_v09_mass, total_v1_mass, total_v15_mass, total_v2_mini_mass]
+    cmap = ListedColormap(['blue','green', 'orange', 'red'])
+    norm = BoundaryNorm(bounds, cmap.N)
+    fig.colorbar(ScalarMappable(cmap = cmap, norm = norm), ax=ax, label = "Total Mass Launched per Version (Metric Tonnes)")
+
+    plt.tight_layout()
     plt.legend()
     plt.savefig("../data/mass_graphs/starlink_versions.png")
 
