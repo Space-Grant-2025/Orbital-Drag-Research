@@ -1,5 +1,6 @@
 import os
 import re
+import pandas as pd
 
 count = 0
 
@@ -38,15 +39,12 @@ def check_starlink_files_exists(id):
 
 
 def run_check_starlink_files():
-    with open('../data/starlink_reentries_list.txt', 'r') as file:
-        # pass over headers
-        file.readline()
+    starlink_reentries = pd.read_csv('../data/starlink_reentries_list.txt')
+    masterlist_ids = starlink_reentries['STARLINK REENTRIES 2020-01-01 to 2025-05-31']
 
-        # loop through norad ids and create file of tle data
-        for id in file:
-            id = id.strip()
-            masterlist_ids.append(id)
-            check_starlink_files_exists(id)
+    for id in masterlist_ids:
+        check_starlink_files_exists(id)
+
     print("Finished checking files\n")
 
 # checks oliveira's list of ids against masterlist
