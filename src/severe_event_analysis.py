@@ -1,5 +1,5 @@
 import glob
-from special_tools import day2doy
+from modular_methods import day2doy
 import pandas as pd
 from datetime import datetime
 import matplotlib.pyplot as plt

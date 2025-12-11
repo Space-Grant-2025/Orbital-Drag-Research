@@ -1,5 +1,6 @@
 import os
-import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.colors
 from year_mass_reentry_setup import *
 from get_satellite_masses_file import *
 from csv import reader
@@ -39,21 +40,21 @@ def plot_altitude_mass_lifetime(start_year, end_year):
                     other_altitude_list.append(altitude)
 
 
-    fig, ax = plot.subplots(figsize = (9, 4.8), layout='constrained')
+    fig, ax = plt.subplots(figsize = (9, 4.8), layout='constrained')
 
     norm = matplotlib.colors.Normalize(vmin=100, vmax=800)
     cmap = idl39
     fig.colorbar(matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, orientation='vertical', label='Altitude (km)')
 
-    plot.scatter(other_mass_list, other_lifetime_list, s = 20, c = other_altitude_list, cmap = cmap, norm = norm, marker = '.')
-    plot.scatter(starlink_mass_list, starlink_lifetime_list, s = 20, c = starlink_altitude_list, cmap = cmap, norm = norm, marker = 'x')
+    plt.scatter(other_mass_list, other_lifetime_list, s = 20, c = other_altitude_list, cmap = cmap, norm = norm, marker = '.')
+    plt.scatter(starlink_mass_list, starlink_lifetime_list, s = 20, c = starlink_altitude_list, cmap = cmap, norm = norm, marker = 'x')
 
-    plot.title("Reentered LEO Satellite Lifetime by Dry Mass and Altitude")
-    plot.ylabel("Years in Orbit")
-    plot.xlabel("Mass (kg)")
-    plot.xscale('log')
+    plt.title("Reentered LEO Satellite Lifetime by Dry Mass and Altitude")
+    plt.ylabel("Years in Orbit")
+    plt.xlabel("Mass (kg)")
+    plt.xscale('log')
     ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=False))
-    plot.savefig('../data/lifetime_graphs/altitude_mass_lifetime.png', format='png')
+    plt.savefig('../data/lifetime_graphs/altitude_mass_lifetime.png', format='png')
 
 # outdated
 '''# lifetime of satellites by mass

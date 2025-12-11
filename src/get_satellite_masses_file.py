@@ -1,7 +1,6 @@
 import csv
 import datetime
-
-end_of_may = datetime.date(2025, 5, 31)
+from modular_methods import *
 
 class satellite_mass:
     def __init__(self, id, name, launch_date, reentry_date, mass, orbit, pl_name):
@@ -12,22 +11,6 @@ class satellite_mass:
         self.mass = mass
         self.orbit = orbit
         self.pl_name = pl_name
-
-    # getters
-    def get_id(self):
-        return self.id
-    def get_name(self):
-        return self.name
-    def get_launch_date(self):
-        return self.launch_date
-    def get_reentry_date(self):
-        return self.reentry_date
-    def get_mass(self):
-        return self.mass
-    def get_orbit(self):
-        return self.orbit
-    def get_plname(self):
-        return self.pl_name
 
 def create_satellite_list():
     satellite_list = []
@@ -64,10 +47,10 @@ def create_satellite_list():
                     if row_id == satellite_id:
                         # if space-track launch date is none, add mcdowell's launch date
                         if satellite_launch_date != '':
-                            satellite_launch_date = create_date(row[7])
+                            satellite_launch_date = create_mcdowell_date(row[7])
                         # if space-track reentry date is none, add mcdowell's reentry date
                         if satellite_reentry_date != '':
-                            satellite_reentry_date = create_date(row[11])
+                            satellite_reentry_date = create_mcdowell_date(row[11])
                         if row[19].isdigit():
                             mass = float(row[21])
                         orbit = row[39]
@@ -76,24 +59,6 @@ def create_satellite_list():
             satellite = satellite_mass(satellite_id, name, satellite_launch_date, satellite_reentry_date, mass, orbit, pl_name)
             satellite_list.append(satellite)
     return satellite_list
-
-def create_date(date_str):
-    if date_str is not None:
-        if len(date_str) >= 10:
-            date_str = date_str[:11]
-            year = int(date_str[:4])
-            month = date_str[5:8]
-            day = int(date_str[9:11].strip())
-            date = datetime.datetime.strptime(f'{year}-{month}-{day}', "%Y-%b-%d").date()
-            return date
-        elif len(date_str) == 5:
-            date_str = date_str[:4]
-            year = int(date_str[:4])
-            date = datetime.date(year, 1, 1)
-            return date
-        else:
-            return None
-    return None
 
 def write_satellite_list_to_file():
     satellite_list = create_satellite_list()

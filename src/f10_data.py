@@ -2,19 +2,13 @@ import datetime
 import re
 import csv
 import matplotlib.pyplot as plot
-from special_tools import smooth, day2doy
+from modular_methods import smooth, day2doy
 from year_mass_reentry_setup import *
 
 class f10_data:
     def __init__(self, date, value):
         self.date = date
         self.value = value
-
-# getters
-def get_date(self):
-    return self.date
-def get_value(self):
-    return self.value
 
 def get_day_dict(start_date, end_date):
     day_list = []
@@ -36,7 +30,7 @@ def get_day_dict(start_date, end_date):
 def get_average_f10(start_year, end_year):
     f10_dates, f10_values = get_data_from_f10_csv(datetime.date(start_year, 1, 1), datetime.date(end_year, 5, 31))
     # to fill with values
-    f10_dict = get_year_dict(start_year, end_year)
+    f10_dict = get_day_dict(start_year, end_year)
 
     f10_time_floats = []
     for x in range(len(f10_values)):
@@ -100,12 +94,11 @@ def get_f10_masterlist():
 
     for f10 in oliveira_list:
         # make sure within date range
-        day_vals[str(get_date(f10))] = get_value(f10)
+        day_vals[str(f10.date)] = f10.value
 
     # add solfsmy data
     for f10 in solfsmy_list:
-        f10_date = str(get_date(f10))
-        f10_value = get_value(f10)
+        f10_date, f10_value = str(f10.date), f10.value
 
         # make sure within date range
         # if value is unset, add solfsmy data and move on

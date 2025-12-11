@@ -2,7 +2,7 @@ from csv import reader
 
 from dateutil.relativedelta import relativedelta
 
-from special_tools import day2doy
+from modular_methods import day2doy
 from numpy import array, zeros
 from colormaps import idl39_w, plasma_w
 import numpy as np

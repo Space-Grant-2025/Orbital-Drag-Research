@@ -5,6 +5,7 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plot
 from matplotlib.ticker import LinearLocator
 import pandas as pd
+from modular_methods import *
 
 class satellite_reentry:
     def __init__(self, id, row):
@@ -19,8 +20,6 @@ class satellite_reentry:
         self.nrlmsise = row[7]
         self.local_time = row[8]
 
-
-
 def gather_data_from_csv(id):
     # list of data points for one satellite
     satellite_list = []
@@ -34,12 +33,6 @@ def gather_data_from_csv(id):
             satellite_list.append(satellite_instance)
 
     return satellite_list
-
-def get_reference_epoch(id):
-    epoch_df = pd.read_csv('../data/epoch_masterlist.csv')
-    target_row = epoch_df[epoch_df['NORAD ID'] == id]
-    ref_alt = target_row["REFERENCE ALTITUDE EPOCH"].iloc[0]
-    return datetime.strptime(ref_alt, "%Y-%m-%d %H:%M:%S%z")
 
 def plot_altitude_time(satellite_list):
     # lists to plot
@@ -83,7 +76,8 @@ def plot_jb2008_time(satellite_list):
     jb2008_list = []
     date_list = []
 
-    reference_epoch = get_reference_epoch(satellite_list[0].id)
+    satellite_id = satellite_list[0].id
+    reference_epoch = get_reference_epoch(satellite_id)
 
     # gather data to plot
     for satellite_instance in satellite_list:
@@ -116,7 +110,8 @@ def plot_nrlmsise_time(satellite_list):
     nrlmsise_list = []
     date_list = []
 
-    reference_epoch = get_reference_epoch(satellite_list[0].id)
+    satellite_id = satellite_list[0].id
+    reference_epoch = get_reference_epoch(satellite_id)
 
     # gather data to plot
     for satellite_instance in satellite_list:
@@ -180,21 +175,19 @@ def run_altitude_time():
     if not os.path.exists("../data/starlink_reentries_2020_2025/reentry_graphs/altitude_time/"):
         os.makedirs("../data/starlink_reentries_2020_2025/reentry_graphs/altitude_time/")
 
-    with open('../data/starlink_reentries_list.txt', 'r') as masterlist:
-        count = 1
-        # pass over headers
-        masterlist.readline()
+    reentries_list = pd.read_csv("../data/starlink_reentries_list.txt")
+    id_list = reentries_list["STARLINK REENTRIES 2020-01-01 to 2025-05-31"]
 
-        # create plot for each id
-        for id in masterlist:
-            id = int(id.strip())
+    # create plot for each id
+    count = 1
+    for id in id_list:
 
-            if os.path.exists("../data/starlink_reentries_2020_2025/reentry_graphs/altitude_time/" + str(id) + "_altitude_time.png"):
-                continue
+        if os.path.exists("../data/starlink_reentries_2020_2025/reentry_graphs/altitude_time/" + str(id) + "_altitude_time.png"):
+            continue
 
-            print(f"{count}: {id}")
-            plot_altitude_time(gather_data_from_csv(id))
-            count += 1
+        print(f"{count}: {id}")
+        plot_altitude_time(gather_data_from_csv(id))
+        count += 1
     print("Finished altitude-time")
 
 def run_jb2008_time():
@@ -207,7 +200,6 @@ def run_jb2008_time():
     # create plot for each id
     count = 1
     for id in id_list:
-        id = int(id.strip())
 
         if os.path.exists("../data/starlink_reentries_2020_2025/reentry_graphs/jb2008_time/" + str(id) + "_jb2008_time.png"):
             continue
@@ -229,7 +221,6 @@ def run_nrlmsise_time():
     # create plot for each id
     count = 1
     for id in id_list:
-        id = int(id.strip())
 
         if os.path.exists("../data/starlink_reentries_2020_2025/reentry_graphs/nrlmsise_time/" + str(id) + "_nrlmsise_time.png"):
             continue
@@ -251,7 +242,6 @@ def run_lifetime():
     # create plot for each id
     count = 1
     for id in id_list:
-        id = id.strip()
 
         if os.path.exists("../data/starlink_reentries_2020_2025/lifetime_profiles/" + str(id) + "_lifetime_profile.png"):
             continue
@@ -260,7 +250,6 @@ def run_lifetime():
         print(f"{count}: {id}")
         count += 1
     print("Finished lifetime profiles")
-
 
 if __name__ == '__main__':
     if not os.path.exists("../data/starlink_reentries_2020_2025/reentry_graphs"):

@@ -1,7 +1,7 @@
 import sys
 import matplotlib
 import matplotlib.pyplot as plot
-from special_tools import day2doy
+from modular_methods import day2doy
 from numpy import zeros, linspace
 from colormaps import idl39_w, plasma_w
 

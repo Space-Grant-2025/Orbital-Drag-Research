@@ -6,7 +6,7 @@ import ephem
 import queue
 from csv import reader
 from read_tle_by_id import *
-from special_tools import day2doy
+from modular_methods import day2doy
 
 
 

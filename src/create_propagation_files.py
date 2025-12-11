@@ -16,18 +16,6 @@ class satellite_prediction():
         self.ref_alt = ref_satellite.elevation / 1000
         self.pred_epoch, self.pred_alt = predict_100km(self.id, ref_line1, ref_line2, self.ref_epoch)
 
-# getters
-def get_id(self):
-    return self.id
-def get_ref_epoch(self):
-    return self.ref_epoch
-def get_ref_alt(self):
-    return self.ref_alt
-def get_pred_epoch(self):
-    return self.pred_epoch
-def get_pred_alt(self):
-    return self.pred_alt
-
 twelve_hours = datetime.timedelta(hours=12)
 six_months = datetime.timedelta(days=182)
 
@@ -73,7 +61,7 @@ def write_data(id):
         file.write("EPOCH (BEGINNING WITH REFERENCE TLE),ALTITUDE (KM),PREDICTION EPOCH,PREDICTION ALT (KM)\n")
 
         for item in data_list:
-            file.write(f"{get_ref_epoch(item)},{get_ref_alt(item)},{get_pred_epoch(item)},{get_pred_alt(item)}\n")
+            file.write(f"{item.ref_epoch},{item.ref_alt},{item.pred_epoch},{item.pred_alt}\n")
 
 def main():
     if not os.path.exists("../data/starlink_reentries_2020_2025/propagations"):
