@@ -175,8 +175,7 @@ def run_altitude_time():
     if not os.path.exists("../data/starlink_reentries_2020_2025/reentry_graphs/altitude_time/"):
         os.makedirs("../data/starlink_reentries_2020_2025/reentry_graphs/altitude_time/")
 
-    reentries_list = pd.read_csv("../data/starlink_reentries_list.txt")
-    id_list = reentries_list["STARLINK REENTRIES 2020-01-01 to 2025-05-31"]
+    id_list = get_starlink_ids()
 
     # create plot for each id
     count = 1
@@ -194,8 +193,7 @@ def run_jb2008_time():
     if not os.path.exists("../data/starlink_reentries_2020_2025/reentry_graphs/jb2008_time/"):
         os.makedirs("../data/starlink_reentries_2020_2025/reentry_graphs/jb2008_time/")
 
-    reentries_list = pd.read_csv("../data/starlink_reentries_list.txt")
-    id_list = reentries_list["STARLINK REENTRIES 2020-01-01 to 2025-05-31"]
+    id_list = get_starlink_ids()
 
     # create plot for each id
     count = 1
@@ -215,8 +213,7 @@ def run_nrlmsise_time():
         os.makedirs("../data/starlink_reentries_2020_2025/reentry_graphs/nrlmsise_time/")
 
 
-    reentries_list = pd.read_csv("../data/starlink_reentries_list.txt")
-    id_list = reentries_list["STARLINK REENTRIES 2020-01-01 to 2025-05-31"]
+    id_list = get_starlink_ids()
 
     # create plot for each id
     count = 1
@@ -235,9 +232,7 @@ def run_lifetime():
     if not os.path.exists("../data/starlink_reentries_2020_2025/lifetime_profiles/"):
         os.makedirs("../data/starlink_reentries_2020_2025/lifetime_profiles/")
 
-
-    reentries_list = pd.read_csv("../data/starlink_reentries_list.txt")
-    id_list = reentries_list["STARLINK REENTRIES 2020-01-01 to 2025-05-31"]
+    id_list = get_starlink_ids()
 
     # create plot for each id
     count = 1

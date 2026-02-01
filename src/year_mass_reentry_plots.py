@@ -3,20 +3,20 @@ from csv import reader
 from f10_data import *
 import datetime
 import os
+import matplotlib.dates as mdates
+import pandas as pd
 
 # doesn't use satellite list methods
 def plot_f10_starlink_reentries_time(start_date, end_date):
-    # get reentries
     reentry_list = []
-    with open('../data/epoch_masterlist.csv', 'r') as file:
-        csv_reader = reader(file)
-        # pass over headers
-        next(csv_reader)
+    # get reentries
+    epoch_masterlist_df = pd.read_csv('../data/epoch_masterlist.csv')
+    epoch_list = epoch_masterlist_df["PREDICTION EPOCH"]
 
-        for row in csv_reader:
-            if row[5] != '':
-                reentry_date = datetime.datetime.strptime(row[5], "%Y-%m-%d %H:%M:%S%z")
-                reentry_list.append(reentry_date)
+    for row in epoch_list:
+       if row != '':
+            reentry_date = datetime.datetime.strptime(row[5], "%Y-%m-%d %H:%M:%S%z")
+            reentry_list.append(reentry_date)
 
     # get f10
     f10_dates, f10_values = get_data_from_f10_csv(start_date, end_date)

@@ -2,7 +2,7 @@ import sys
 import csv
 import matplotlib
 import matplotlib.pyplot as plot
-from modular_methods import day2doy
+from modular_methods import *
 from numpy import zeros, linspace
 from colormaps import idl39_w, plasma_w
 from datetime import datetime
@@ -15,10 +15,9 @@ num_days = 20
 
 count = zeros((num_bins, num_days))
 
-
-# TODO: recreate propagation files
-
 def get_data():
+
+
     with open("../data/starlink_reentries_list.txt", "r") as file:
         # pass over headers
         next(file)

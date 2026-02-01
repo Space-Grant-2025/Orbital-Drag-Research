@@ -4,6 +4,7 @@ import csv
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap, BoundaryNorm
 from matplotlib.cm import ScalarMappable
+import pandas as pd
 
 end_of_may = date(2025, 5, 31)
 min_date = date.today()
@@ -85,19 +86,19 @@ class satellite_version:
         if self.launch_date == date(2021, 1, 24):
             self.version = "v1"
 
-
 def make_list():
     global min_date
+    satellite_info_df = pd.read_csv("../data/all_satellite_info.csv")
+    starlinks = satellite_info_df[satellite_info_df["PLNAME"] == "Starlink"]
+
     sat_list = []
-    with open("../data/all_satellite_info.csv") as csvfile:
-        reader = csv.reader(csvfile)
-        for row in reader:
-            if "Starlink" in row[6]:
-                sat = satellite_version(row)
-                if sat.launch_date < min_date:
-                    min_date = sat.launch_date
-                if sat.launch_date <= end_of_may:
-                    sat_list.append(sat)
+    for row in starlinks.iterrows():
+        sat = satellite_version(row)
+        if sat.launch_date < min_date:
+            min_date = sat.launch_date
+        if sat.launch_date <= end_of_may:
+            sat_list.append(sat)
+
     print(min_date)
     return sat_list
 

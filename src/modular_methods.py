@@ -6,6 +6,12 @@ import numpy as np
 end_of_may = date(2025, 5, 31)
 
 
+def get_starlink_ids():
+    reentries_list = pd.read_csv("../data/starlink_reentries_list.txt")
+    id_list = reentries_list["STARLINK REENTRIES 2020-01-01 to 2025-05-31"]
+    return id_list
+
+
 def get_reference_epoch(id):
     '''
     Convert string in McDowell foramt to datetime object
@@ -23,6 +29,12 @@ def get_reference_epoch(id):
     epoch_df = pd.read_csv('../data/epoch_masterlist.csv')
     target_row = epoch_df[epoch_df['NORAD ID'] == id]
     ref_alt = target_row["REFERENCE ALTITUDE EPOCH"].iloc[0]
+    return datetime.strptime(ref_alt, "%Y-%m-%d %H:%M:%S%z")
+
+def get_reentry_date(id):
+    epoch_df = pd.read_csv('../data/epoch_masterlist.csv')
+    target_row = epoch_df[epoch_df['NORAD ID'] == id]
+    ref_alt = target_row["PREDICTION EPOCH"].iloc[0]
     return datetime.strptime(ref_alt, "%Y-%m-%d %H:%M:%S%z")
 
 

@@ -4,6 +4,7 @@ import re
 import ephem
 import math
 import pyautogui
+from modular_methods import *
 from ephem import EarthSatellite
 
 # inverse flattening at each pole for Earth ellipsoid (WGS 84)
@@ -47,60 +48,10 @@ class ephem_tle:
             self.mean_motion = None
             self.velocity = None
 
-    # getters
-    def get_id(self):
-        return self.id
-    def get_line1(self):
-        return self.tle_line1
-    def get_line2(self):
-        return self.tle_line2
-    def get_name(self):
-        return self.name
-    def get_tle_line1(self):
-        return self.tle_line1
-    def get_tle_line2(self):
-        return self.tle_line2
-    def get_date(self):
-        return self.date
-    def get_altitude(self):
-        return self.altitude
-    def get_velocity(self):
-        return self.velocity
-    def get_mean_motion(self):
-        return self.mean_motion
-    def get_latitude(self):
-        return self.latitude
-    def get_longitude(self):
-        return self.longitude
-
-
     def get_utc(self):
         return self.date.timestamp()
     def get_day_of_year(self):
         return self.date.timetuple().tm_yday
-
-# computes local time as a function of day of year, geographic longitude, and universal time using the equation of time (EoT).
-def get_local_time(day_of_year, longitude, utc):
-    if longitude is None:
-        return None
-    if longitude < 0:
-        longitude = 360 + longitude
-
-    B = (day_of_year - 81) * 360.0 / 365.0
-    equation_of_time = 9.87 * math.sin(2 * B) - 7.53 * math.cos(B) - 1.5 * math.sin(B)
-
-    lt = int(longitude / 15.)
-    lstm = 15. * (lt - utc)
-    tc = 4. * (longitude - lstm) + equation_of_time
-    local_time = abs(lt + tc / 60.)
-
-    if local_time >= 24:
-        local_time = local_time - 24
-
-    if local_time < 0:
-        local_time = local_time + 24
-
-    return local_time
 
 def get_jb2008_density(tle):
     tle_date = tle.get_date()
@@ -186,23 +137,26 @@ def process_other_tle_data(id):
         tle_list.append(data)
     return tle_list
 
-def write_starlink_data_to_csv(id, tle_list):
+def write_starlink_data_to_csv(id):
+    tle_list = process_starlink_tle_data(id)
     with open('../data/starlink_reentries_2020_2025/human_readable/tle_' + str(id) + '.csv', 'w') as file:
 
         file.write("DATE,NAME,ALTITUDE,VELOCITY,LATITUDE,LONGITUDE,JB2008 DENSITY,NRLMSISE00 DENSITY,LOCAL TIME,TLE LINE 1,TLE LINE 2\n")
 
         for tle in tle_list:
             # write values to file
-            file.write(f'{str(tle.get_date())},{tle.get_name()},{tle.get_altitude()},{tle.get_velocity()},{tle.get_latitude()},{tle.get_longitude()},{get_jb2008_density(tle)}, {get_nrlmsise_density(tle)}, {get_local_time(tle.get_day_of_year(), tle.get_longitude(), tle.get_utc())},{tle.get_line1()},{tle.get_line2()}\n')
+            file.write(f'{str(tle.get_date())},{tle.get_name()},{tle.get_altitude()},{tle.get_velocity()},{tle.get_latitude()},{tle.get_longitude()},{get_jb2008_density(tle)}, {get_nrlmsise_density(tle)}, {get_xlt(tle.get_day_of_year(), tle.get_longitude(), tle.get_utc())},{tle.get_line1()},{tle.get_line2()}\n')
 
-def write_other_data_to_csv(id, tle_list):
+def write_other_data_to_csv(id):
+    tle_list = process_other_tle_data(id)
+
     with open('../data/other_reentries/human_readable/tle_' + str(id) + '.csv', 'w') as file:
-
         file.write("DATE,NAME,ALTITUDE,LATITUDE,LONGITUDE,LOCAL TIME,TLE LINE 1,TLE LINE 2\n")
         tle_list = sorted(tle_list, key=lambda tle: tle.date)
+
         for tle in tle_list:
             # write values to file
-            file.write(f'{str(tle.get_date())},{tle.get_name()},{tle.get_altitude()},{tle.get_latitude()},{tle.get_longitude()},{get_local_time(tle.get_day_of_year(), tle.get_longitude(), tle.get_utc())},{tle.get_line1},{tle.get_line2}\n')
+            file.write(f'{str(tle.get_date())},{tle.get_name()},{tle.get_altitude()},{tle.get_latitude()},{tle.get_longitude()},{get_xlt(tle.get_day_of_year(), tle.get_longitude(), tle.get_utc())},{tle.get_line1},{tle.get_line2}\n')
 
 def read_starlink_tles():
     start_time = datetime.datetime.now()
@@ -224,7 +178,7 @@ def read_starlink_tles():
                 continue
 
             # create new satellite object and write data to file
-            write_starlink_data_to_csv(id, process_starlink_tle_data(id))
+            write_starlink_data_to_csv(id)
 
             # jitter to keep computer awake
             pyautogui.press('shift')
@@ -239,32 +193,31 @@ def read_starlink_tles():
 
 def read_other_tles():
     start_time = datetime.datetime.now()
-    with open('../data/other_reentries_list.txt', 'r') as file:
 
-        if not os.path.exists("../data/other_reentries/human_readable/"):
-            os.makedirs("../data/other_reentries/human_readable/")
+    if not os.path.exists("../data/other_reentries/human_readable/"):
+        os.makedirs("../data/other_reentries/human_readable/")
+
+    # progress tracker
+    count = 1
+    # loop through norad ids and create file of tle data
+    id_list = get_starlink_ids()
+    for id in id_list:
+        # check not starlink reentry 2020 to 2025
+        if os.path.exists(f"../data/starlink_reentries_2020_2025/starlink_tles/tle_{id}.txt"):
+            continue
+        # check file doesn't exist already
+        if os.path.exists("../data/other_reentries/human_readable/tle_" + str(id) + ".csv"):
+            continue
+
+        # create new satellite object and write data to file
+        write_other_data_to_csv(id)
+
+        # jitter to keep computer awake
+        pyautogui.press('shift')
 
         # progress tracker
-        count = 1
-        # loop through norad ids and create file of tle data
-        for id in file:
-            id = int(id.strip())
-            # check not starlink reentry 2020 to 2025
-            if os.path.exists(f"../data/starlink_reentries_2020_2025/starlink_tles/tle_{id}.txt"):
-                continue
-            # check file doesn't exist already
-            if os.path.exists("../data/other_reentries/human_readable/tle_" + str(id) + ".csv"):
-                continue
-
-            # create new satellite object and write data to file
-            write_other_data_to_csv(id, process_other_tle_data(id))
-
-            # jitter to keep computer awake
-            pyautogui.press('shift')
-
-            # progress tracker
-            print(f'{count}: {id}')
-            count += 1
+        print(f'{count}: {id}')
+        count += 1
 
     # prints total time program takes to run because i'm curious
     end_time = datetime.datetime.now()
@@ -282,8 +235,6 @@ if __name__ == '__main__':
     # compile lastest nrlmsise00 data
     nrlmsise_swfile = download_sw_nrlmsise00()
     nrlmsise_swdata = read_sw_nrlmsise00(nrlmsise_swfile)
-
-
 
     read_starlink_tles()
     #read_other_tles()
