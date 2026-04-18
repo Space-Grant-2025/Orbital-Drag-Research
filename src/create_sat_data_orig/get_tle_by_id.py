@@ -3,11 +3,6 @@ import configparser
 import datetime
 import time
 import os.path
-from csv import reader
-
-from numba.core.typing import Context
-import pyautogui
-from year_mass_reentry_setup import *
 
 # given a NORAD ID, returns the TLE data for the corresponding satellite
 def get_tle(id):
@@ -45,7 +40,7 @@ def get_tle(id):
 
 # given tle data, add it to txt file
 def write_reentered_starlink_to_file(text, id):
-    with open("../data/starlink_reentries_2020_2025/starlink_tles/tle_" + str(id) + ".txt", "w") as file:
+    with open("../../data/starlink_reentries_2020_2025/starlink_tles/tle_" + str(id) + ".txt", "w") as file:
         for line in text.split('},{'):
             line_arr = line.split(',')
             tle0 = line_arr[37][12:].strip("\"")
@@ -58,9 +53,9 @@ def write_reentered_starlink_to_file(text, id):
 def get_reentered_starlink_tles():
     start_time = datetime.datetime.now()
 
-    with open('../data/starlink_reentries_list.txt', 'r') as file:
-        if not os.path.exists("../data/starlink_reentries_2020_2025/starlink_tles/"):
-            os.makedirs("../data/starlink_reentries_2020_2025/starlink_tles/")
+    with open('../../../data/starlink_reentries_list.txt', 'r') as file:
+        if not os.path.exists("../../../data/starlink_reentries_2020_2025/starlink_tles/"):
+            os.makedirs("../../../data/starlink_reentries_2020_2025/starlink_tles/")
 
         # pass over headers
         file.readline()
@@ -72,7 +67,7 @@ def get_reentered_starlink_tles():
         for id in file:
             id = int(id.strip())
 
-            if os.path.exists("../data/starlink_reentries_2020_2025/starlink_tles/tle_" + str(id) + ".txt"):
+            if os.path.exists("../../data/starlink_reentries_2020_2025/starlink_tles/tle_" + str(id) + ".txt"):
                 continue
 
             tle = get_tle(id)
@@ -91,8 +86,8 @@ def get_reentered_starlink_tles():
 
 def write_other_reentries_to_file(text, id):
 
-    if not os.path.exists("../data/other_reentries/other_tles/"):
-        os.makedirs("../data/other_reentries/other_tles/")
+    if not os.path.exists("../../data/other_reentries/other_tles/"):
+        os.makedirs("../../data/other_reentries/other_tles/")
 
     with open("../data/other_reentries/other_tles/tle_" + str(id) + ".txt", "w") as file:
         for line in text.split('},{'):
@@ -105,14 +100,14 @@ def write_other_reentries_to_file(text, id):
 def get_other_reentry_tles():
     start_time = datetime.datetime.now()
     count = 1
-    with open("../data/other_reentries_list.txt", "r") as file:
+    with open("../../../data/other_reentries_list.txt", "r") as file:
         for line in file:
             id = line.strip()
             # check not starlink reentry 2020 to 2025
-            if os.path.exists(f"../data/starlink_reentries_2020_2025/starlink_tles/tle_{id}.txt"):
+            if os.path.exists(f"../../data/starlink_reentries_2020_2025/starlink_tles/tle_{id}.txt"):
                 continue
             # check file doesn't exist already
-            if os.path.exists(f"../data/other_reentries/other_tles/tle_{id}.txt"):
+            if os.path.exists(f"../../data/other_reentries/other_tles/tle_{id}.txt"):
                 continue
 
             tle = get_tle(id)

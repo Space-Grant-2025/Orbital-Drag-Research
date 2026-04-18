@@ -10,12 +10,12 @@ oliveira_ids = []
 # prints id and message if does not exist
 def check_starlink_files_exists(id):
     global count
-    txt_exists = os.path.isfile(f'../data/starlink_reentries_2020_2025/starlink_tles/tle_{id}.txt')
-    csv_exist = os.path.isfile(f'../data/starlink_reentries_2020_2025/human_readable/tle_{id}.csv')
-    lifetime_exist = os.path.isfile(f"../data/starlink_reentries_2020_2025/lifetime_profiles/{id}_lifetime_profile.png")
-    altitude_time_exist = os.path.isfile(f"../data/starlink_reentries_2020_2025/reentry_graphs/altitude_time/{id}_altitude_time.png")
-    jb2008_time_exist = os.path.isfile(f"../data/starlink_reentries_2020_2025/reentry_graphs/jb2008_time/{id}_jb2008_time.png")
-    nrlmsise_time_exist = os.path.isfile(f"../data/starlink_reentries_2020_2025/reentry_graphs/nrlmsise_time/{id}_nrlmsise_time.png")
+    txt_exists = os.path.isfile(f'../../data/starlink_reentries_2020_2025/starlink_tles/tle_{id}.txt')
+    csv_exist = os.path.isfile(f'../../data/starlink_reentries_2020_2025/human_readable/tle_{id}.csv')
+    lifetime_exist = os.path.isfile(f"../../data/starlink_reentries_2020_2025/lifetime_profiles/{id}_lifetime_profile.png")
+    altitude_time_exist = os.path.isfile(f"../../data/starlink_reentries_2020_2025/reentry_graphs/altitude_time/{id}_altitude_time.png")
+    jb2008_time_exist = os.path.isfile(f"../../data/starlink_reentries_2020_2025/reentry_graphs/jb2008_time/{id}_jb2008_time.png")
+    nrlmsise_time_exist = os.path.isfile(f"../../data/starlink_reentries_2020_2025/reentry_graphs/nrlmsise_time/{id}_nrlmsise_time.png")
 
     if not txt_exists:
         count += 1
@@ -38,7 +38,7 @@ def check_starlink_files_exists(id):
 
 
 def run_check_starlink_files():
-    with open('../data/starlink_reentries_list.txt', 'r') as file:
+    with open('../../data/starlink_reentries_list.txt', 'r') as file:
         # pass over headers
         file.readline()
 
@@ -53,7 +53,7 @@ def run_check_starlink_files():
 # prints NORAD ID and reentry data
 # only ones not in original list are 48160 and 54046 (i don't know why)
 def check_oliveira_data_against_masterlist():
-    with open(f'../data/external_datasets/oliveira_data.txt', 'r') as file:
+    with open(f'../../data/external_datasets/oliveira_data.txt', 'r') as file:
         global count
         count = 0
         # pass over headers
@@ -74,14 +74,14 @@ def check_oliveira_data_against_masterlist():
     print("Finished checking Oliveira data\n")
 
 def add_oliveira_data_to_masterlist():
-    with open('../data/starlink_reentries_list.txt', 'a') as masterlist:
+    with open('../../data/starlink_reentries_list.txt', 'a') as masterlist:
         for id in oliveira_ids:
             masterlist.write(id + "\n")
     print("Added Oliveira data to masterlist\n")
 
 # make sure reentries are bifurcated
 def check_reentry_files():
-    with open('../data/other_reentries_list.txt', 'r') as file:
+    with open('../../data/other_reentries_list.txt', 'r') as file:
         lines = file.readlines()
         num = len(lines)
         starlink_count = 0
@@ -98,9 +98,9 @@ def check_reentry_files():
 def check_starlinks_in_reentry():
     count = 0
     starlink_list = []
-    with open('../data/other_reentries_list.txt', 'r') as file:
+    with open('../../data/other_reentries_list.txt', 'r') as file:
         reentries = file.readlines()
-    with open('../data/starlink_reentries_list.txt', 'r') as file:
+    with open('../../data/starlink_reentries_list.txt', 'r') as file:
         # pass over header
         file.readline()
 
@@ -113,7 +113,7 @@ def check_starlinks_in_reentry():
 
 def add_starlink_to_reentry():
     list = check_starlinks_in_reentry()
-    with open('../data/other_reentries_list.txt', 'a') as file:
+    with open('../../data/other_reentries_list.txt', 'a') as file:
         for id in list:
             file.write(id)
 
