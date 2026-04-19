@@ -3,7 +3,7 @@ import csv
 import datetime
 import matplotlib.pyplot as plot
 from numpy import zeros, linspace
-from colormaps import idl39_w, plasma_w
+from src.colormaps import idl39_w, plasma_w
 
 max_height = 200
 min_height = -max_height
@@ -17,7 +17,7 @@ count = zeros((num_bins + 1, num_days + 1))
 
 def get_data():
     id_list = []
-    with open ('../data/epoch_masterlist.csv', 'r') as file:
+    with open ('../../data/epoch_masterlist.csv', 'r') as file:
         csv_reader = csv.reader(file)
         # pass over headers
         next(csv_reader)

@@ -1,5 +1,5 @@
-from create_epoch_files import *
-from src.read_tle_by_id import get_date_from_tle
+from src.epochs.create_epoch_files import *
+from special_tools import get_date_from_tle
 
 none_count = 0
 
@@ -14,19 +14,26 @@ class satellite_prediction():
         ref_satellite.compute(ephem_date)
 
         self.ref_alt = ref_satellite.elevation / 1000
-        self.pred_epoch, self.pred_alt = predict_100km(self.id, ref_line1, ref_line2, self.ref_epoch)
+        self.pred_epoch, self.pred_alt = self.predict_100km(ref_line1, ref_line2)
 
-# getters
-def get_id(self):
-    return self.id
-def get_ref_epoch(self):
-    return self.ref_epoch
-def get_ref_alt(self):
-    return self.ref_alt
-def get_pred_epoch(self):
-    return self.pred_epoch
-def get_pred_alt(self):
-    return self.pred_alt
+    def predict_100km(self, ref_line1, ref_line2):
+        global none_count
+        # starting alt higher than starlink sat
+        altitude = 999999
+        epoch = self.ref_epoch
+        sat = ephem.readtle('NORAD' + str(id), ref_line1, ref_line2)
+
+        while altitude > 110:
+            try:
+                ephem_epoch = epoch.strftime("%Y-%m-%d %H:%M:%S")
+                sat.compute(ephem_epoch)
+                altitude = sat.elevation / 1000
+                epoch += twelve_hours
+            except:
+                none_count += 1
+                return None, None
+
+        return epoch, altitude
 
 twelve_hours = datetime.timedelta(hours=12)
 six_months = datetime.timedelta(days=182)
@@ -46,26 +53,6 @@ def get_satellite_data(id):
 
     return data_list
 
-
-def predict_100km(id, ref_line1, ref_line2, ref_epoch):
-    global none_count
-    # starting alt higher than starlink sat
-    altitude = 999999
-    epoch = ref_epoch
-    sat = ephem.readtle('NORAD' + str(id), ref_line1, ref_line2)
-
-    while altitude > 110:
-        try:
-            ephem_epoch = epoch.strftime("%Y-%m-%d %H:%M:%S")
-            sat.compute(ephem_epoch)
-            altitude = sat.elevation / 1000
-            epoch += twelve_hours
-        except:
-            none_count += 1
-            return None, None
-
-    return epoch, altitude
-
 def write_data(id):
     data_list = get_satellite_data(id)
 
@@ -73,13 +60,13 @@ def write_data(id):
         file.write("EPOCH (BEGINNING WITH REFERENCE TLE),ALTITUDE (KM),PREDICTION EPOCH,PREDICTION ALT (KM)\n")
 
         for item in data_list:
-            file.write(f"{get_ref_epoch(item)},{get_ref_alt(item)},{get_pred_epoch(item)},{get_pred_alt(item)}\n")
+            file.write(f"{item.ref_epoch},{item.ref_alt},{item.pred_epoch},{item.pred_alt}\n")
 
 def main():
-    if not os.path.exists("../data/starlink_reentries_2020_2025/propagations"):
-        os.makedirs("../data/starlink_reentries_2020_2025/propagations")
+    if not os.path.exists("../../data/starlink_reentries_2020_2025/propagations"):
+        os.makedirs("../../data/starlink_reentries_2020_2025/propagations")
 
-    with open("../data/starlink_reentries_list.txt", "r") as file:
+    with open("../../data/starlink_reentries_list.txt", "r") as file:
         # pass over headers
         next(file)
 

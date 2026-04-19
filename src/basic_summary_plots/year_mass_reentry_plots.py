@@ -8,7 +8,7 @@ import os
 def plot_f10_starlink_reentries_time(start_date, end_date):
     # get reentries
     reentry_list = []
-    with open('../data/epoch_masterlist.csv', 'r') as file:
+    with open('../../data/epoch_masterlist.csv', 'r') as file:
         csv_reader = reader(file)
         # pass over headers
         next(csv_reader)
@@ -120,8 +120,8 @@ def plot_stacked_mass_in_space(start_year, end_year):
 
 
 if __name__ == '__main__':
-    if not os.path.exists("../data/mass_graphs"):
-        os.makedirs("../data/mass_graphs")
+    if not os.path.exists("../../data/mass_graphs"):
+        os.makedirs("../../data/mass_graphs")
 
     #plot_f10_starlink_reentries_time(datetime.date(2020, 1, 1), datetime.date(2025, 5, 30))
     #plot_stacked_reentries_time(1957, 2025)

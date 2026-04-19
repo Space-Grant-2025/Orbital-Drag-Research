@@ -18,74 +18,59 @@ class satellite_mass_lifetime:
             self.altitude = None
         self.lifetime = self.reentry_date - self.launch_date
 
-    # getters
-    def get_id(self):
-        return self.id
-    def get_name(self):
-        return self.name
-    def get_launch_date(self):
-        return self.launch_date
-    def get_reentry_date(self):
-        return self.reentry_date
-    def get_mass(self):
-        return self.mass
-    def get_altitude(self):
-        return self.altitude
-    def get_lifetime(self):
-        return self.lifetime
 
 def get_satellite_list():
     satellite_list = []
-    with open("../data/all_reentries_info.csv", "r") as file:
+    with open("../../data/all_reentries_info.csv", "r") as file:
         reader = csv.reader(file)
         # pass over headers
         next(reader)
         for row in reader:
-            satellite = satellite_mass_lifetime(row)
+            sat = satellite_mass_lifetime(row)
             # check critical values are not none
-            if satellite.get_mass() is not None and satellite.get_launch_date() is not None and satellite.get_altitude() is not None:
+            if sat.mass is not None and sat.launch_date is not None and sat.altitude is not None:
                 # check within year specification
-                if satellite.get_launch_date() <= end_of_may:
+                if sat.launch_date <= end_of_may:
                     # check within mass and altitude restrictions
-                    if satellite.get_altitude() <= MAX_ALTITUDE and satellite.get_mass() <= MAX_MASS:
-                        satellite_list.append(satellite)
+                    if sat.altitude <= MAX_ALTITUDE and sat.mass <= MAX_MASS:
+                        satellite_list.append(sat)
     return satellite_list
 
 def get_starlink_list():
     satellite_list = []
-    with open("../data/all_reentries_info.csv", "r") as file:
+    with open("../../data/all_reentries_info.csv", "r") as file:
         reader = csv.reader(file)
         # pass over headers
         next(reader)
         for row in reader:
             satellite = satellite_mass_lifetime(row)
             # check critical values are not none
-            if satellite.get_mass() is not None and satellite.get_launch_date() is not None and satellite.get_altitude() is not None:
+            if satellite.mass is not None and satellite.launch_date is not None and satellite.altitude is not None:
                 # check launch within year specification
-                if satellite.get_launch_date() <= end_of_may:
+                if satellite.launch_date <= end_of_may:
                     # check within mass and altitude restrictions
-                    if satellite.get_altitude() <= MAX_ALTITUDE and satellite.get_mass() <= MAX_MASS:
+                    if satellite.altitude <= MAX_ALTITUDE and satellite.mass <= MAX_MASS:
                         # check sat name
-                        if 'STARLINK' in satellite.get_name():
+                        if 'STARLINK' in satellite.name:
                             satellite_list.append(satellite)
     return satellite_list
 
 def get_not_starlink_list():
     satellite_list = []
-    with open("../data/all_reentries_info.csv", "r") as file:
+    with open("../../data/all_reentries_info.csv", "r") as file:
         reader = csv.reader(file)
         # pass over headers
         next(reader)
         for row in reader:
             satellite = satellite_mass_lifetime(row)
             # check critical values are not none
-            if satellite.get_mass() is not None and satellite.get_launch_date() is not None and satellite.get_altitude() is not None:
+            if satellite.mass is not None and satellite.launch_date is not None and satellite.altitude is not None:
                 # check within year specification
-                if satellite.get_launch_date() <= end_of_may:
+                if satellite.launch_date <= end_of_may:
                     # check within mass and altitude restrictions
-                    if satellite.get_altitude() <= MAX_ALTITUDE and satellite.get_mass() <= MAX_MASS:
+                    if satellite.altitude <= MAX_ALTITUDE and satellite.mass <= MAX_MASS:
                         # check sat name
-                        if 'STARLINK' not in satellite.get_name():
+                        if 'STARLINK' not in satellite.name:
                             satellite_list.append(satellite)
     return satellite_list
 

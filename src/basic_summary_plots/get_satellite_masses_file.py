@@ -31,7 +31,7 @@ class satellite_mass:
 
 def create_satellite_list():
     satellite_list = []
-    with open(f'../data/external_datasets/space_track_payloads.csv', 'r') as mass_file:
+    with open(f'../../data/external_datasets/space_track_payloads.csv', 'r') as mass_file:
         mass_reader = csv.reader(mass_file)
         # pass over headers
         next(mass_reader)
@@ -53,7 +53,7 @@ def create_satellite_list():
             if satellite_launch_date is not None and satellite_launch_date >= end_of_may:
                 continue
 
-            with open('../data/external_datasets/mcdowell_satcat.csv', 'r') as satcat_file:
+            with open('../../data/external_datasets/mcdowell_satcat.csv', 'r') as satcat_file:
                 satcat_reader = csv.reader(satcat_file)
                 # pass over headers
                 next(satcat_reader)
@@ -97,7 +97,7 @@ def create_date(date_str):
 
 def write_satellite_list_to_file():
     satellite_list = create_satellite_list()
-    with open('../data/all_satellite_info.csv', 'w') as satellite_file:
+    with open('../../data/all_satellite_info.csv', 'w') as satellite_file:
         satellite_file.write("NORAD CAT ID,NAME,LAUNCH DATE,REENTRY DATE,DRY MASS (KG),ORBIT,PLNAME\n")
         for satellite in satellite_list:
             satellite_file.write(f"{satellite.get_id()},{satellite.get_name()},{satellite.get_launch_date()},{satellite.get_reentry_date()},{satellite.get_mass()},{satellite.get_orbit()},{satellite.get_plname()}\n")

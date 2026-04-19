@@ -1,10 +1,9 @@
-
-# This file contains special functions I frequently use in my data analyses
-
+import math
+import re
 import sys
 import datetime 
-import calendar
-import numpy as np 
+from datetime import datetime
+import numpy as np
 import matplotlib as mpl 
 import matplotlib.pyplot as plt 
 
@@ -312,8 +311,6 @@ def nan_helper(bad_data, var):
 
     return var
 
-
-
 def earth_radius_lat(xlat):
 
     """
@@ -363,7 +360,6 @@ def earth_radius_lat(xlat):
 
     return Re
 
-
 def haversine(xlat1, xlon1, xlat2, xlon2):
 
     """
@@ -410,7 +406,6 @@ def haversine(xlat1, xlon1, xlat2, xlon2):
     d = 2 * Re * arcsin(A)
 
     return d
-
 
 def gd2gc(xlat, xht):
 
@@ -474,7 +469,6 @@ def gd2gc(xlat, xht):
 
     return xlat, r
 
-
 def gd2car(xlat, xlon, xht):
 
     """
@@ -501,7 +495,6 @@ def gd2car(xlat, xlon, xht):
     z = ((1 - e2) * N + xht) * sin(theta)
 
     return x, y, z
-
 
 def get_days_since_date(dtime1, dtime2):
 
@@ -532,6 +525,44 @@ def seconds2ut(time):
     ss = int((time - hh * 3600 - mm * 60))
 
     return hh, mm, ss
+
+# gets in the float representing the date on the first line of the tle and returns datetime object
+def get_date_from_tle(tle_line1):
+    find_date = re.compile('\\d{5}\\.\\d{8}')
+    tle_date = find_date.search(tle_line1).group()
+
+    year = 0
+    # checks if the year listed is before 2000 (not necessary, but good practice)
+    if int(tle_date[:2]) > 50:
+        year = 1900 + int(tle_date[:2])
+    else:
+        year = 2000 + int(tle_date[:2])
+    # holds the day of year and fraction of day
+    total_days = float(tle_date[2:])
+
+    # fraction represents the fraction of the day
+    fraction = total_days - int(total_days)
+    total_days = math.trunc(total_days)
+
+    # converts number of days in year to day and month
+    month = int(datetime.strptime(f"{year} {total_days}", '%Y %j').strftime('%m'))
+    day = int(datetime.strptime(f"{year} {total_days}",'%Y %j').strftime('%d'))
+
+    # converts fraction of day into human_readable
+    hour = int(fraction * 24)
+    min = int(fraction * 1440 - hour * 60)
+    sec = int(fraction * 86400 - hour * 3600 - min * 60)
+
+    # create datetime object
+    date = datetime(year, month, day, hour, min, sec, tzinfo=datetime.timezone.utc)
+
+    # millisecs and rounding secs for more precision
+    millisecs = fraction * 86400 - hour * 3600 - min * 60 - sec
+
+    if millisecs >= .5:
+        date = date + datetime.timedelta(0, 1)
+
+    return date
 
 
 

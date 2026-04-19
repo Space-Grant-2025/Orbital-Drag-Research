@@ -64,7 +64,7 @@ def gather_data_from_csv(id):
 
 def get_reference_epoch(id):
     reference_epoch = ""
-    with open('../data/epoch_masterlist.csv', 'r') as file:
+    with open('../../data/epoch_masterlist.csv', 'r') as file:
         csv_reader = reader(file)
         # pass over headers
         next(csv_reader)
@@ -123,7 +123,7 @@ def plot_jb2008_time(satellite_list):
     reference_epoch = ""
     satellite_id = get_id(satellite_list[0])
     # find reference epoch for satellite
-    with open('../data/epoch_masterlist.csv', 'r') as file:
+    with open('../../data/epoch_masterlist.csv', 'r') as file:
         csv_reader = reader(file)
         # pass over headers
         next(csv_reader)
@@ -169,7 +169,7 @@ def plot_nrlmsise_time(satellite_list):
     reference_epoch = ""
     satellite_id = get_id(satellite_list[0])
     # find reference epoch for satellite
-    with open('../data/epoch_masterlist.csv', 'r') as file:
+    with open('../../data/epoch_masterlist.csv', 'r') as file:
         csv_reader = reader(file)
         # pass over headers
         next(csv_reader)
@@ -240,10 +240,10 @@ def plot_lifetime(satellite_list):
     plot.close()
 
 def run_altitude_time():
-    if not os.path.exists("../data/starlink_reentries_2020_2025/reentry_graphs/altitude_time/"):
-        os.makedirs("../data/starlink_reentries_2020_2025/reentry_graphs/altitude_time/")
+    if not os.path.exists("../../data/starlink_reentries_2020_2025/reentry_graphs/altitude_time/"):
+        os.makedirs("../../data/starlink_reentries_2020_2025/reentry_graphs/altitude_time/")
 
-    with open('../data/starlink_reentries_list.txt', 'r') as masterlist:
+    with open('../../data/starlink_reentries_list.txt', 'r') as masterlist:
         count = 1
         # pass over headers
         masterlist.readline()
@@ -261,10 +261,10 @@ def run_altitude_time():
     print("Finished altitude-time")
 
 def run_jb2008_time():
-    if not os.path.exists("../data/starlink_reentries_2020_2025/reentry_graphs/jb2008_time/"):
-        os.makedirs("../data/starlink_reentries_2020_2025/reentry_graphs/jb2008_time/")
+    if not os.path.exists("../../data/starlink_reentries_2020_2025/reentry_graphs/jb2008_time/"):
+        os.makedirs("../../data/starlink_reentries_2020_2025/reentry_graphs/jb2008_time/")
 
-    with open('../data/starlink_reentries_list.txt', 'r') as masterlist:
+    with open('../../data/starlink_reentries_list.txt', 'r') as masterlist:
         count = 1
         # pass over headers
         masterlist.readline()
@@ -283,10 +283,10 @@ def run_jb2008_time():
     print("Finished JB2008-time")
 
 def run_nrlmsise_time():
-    if not os.path.exists("../data/starlink_reentries_2020_2025/reentry_graphs/nrlmsise_time/"):
-        os.makedirs("../data/starlink_reentries_2020_2025/reentry_graphs/nrlmsise_time/")
+    if not os.path.exists("../../data/starlink_reentries_2020_2025/reentry_graphs/nrlmsise_time/"):
+        os.makedirs("../../data/starlink_reentries_2020_2025/reentry_graphs/nrlmsise_time/")
 
-    with open('../data/starlink_reentries_list.txt', 'r') as masterlist:
+    with open('../../data/starlink_reentries_list.txt', 'r') as masterlist:
         count = 1
         # pass over headers
         masterlist.readline()
@@ -305,10 +305,10 @@ def run_nrlmsise_time():
     print("Finished NRLMSISE00-time")
 
 def run_lifetime():
-    if not os.path.exists("../data/starlink_reentries_2020_2025/lifetime_profiles/"):
-        os.makedirs("../data/starlink_reentries_2020_2025/lifetime_profiles/")
+    if not os.path.exists("../../data/starlink_reentries_2020_2025/lifetime_profiles/"):
+        os.makedirs("../../data/starlink_reentries_2020_2025/lifetime_profiles/")
 
-    with open('../data/starlink_reentries_list.txt', 'r') as list:
+    with open('../../data/starlink_reentries_list.txt', 'r') as list:
 
         # pass over headers
         next(list)
@@ -329,8 +329,8 @@ def run_lifetime():
 
 
 if __name__ == '__main__':
-    if not os.path.exists("../data/starlink_reentries_2020_2025/reentry_graphs"):
-        os.makedirs("../data/starlink_reentries_2020_2025/reentry_graphs")
+    if not os.path.exists("../../data/starlink_reentries_2020_2025/reentry_graphs"):
+        os.makedirs("../../data/starlink_reentries_2020_2025/reentry_graphs")
 
     run_altitude_time()
     run_jb2008_time()

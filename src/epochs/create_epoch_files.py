@@ -11,7 +11,7 @@ class epochs:
         self.tle_instance_alt = tle_instance_alt
         self.line1 = instance_line1
         self.line2 = instance_line2
-        self.prediction_alt = make_prediction(id, ref_line1, ref_line2, self.tle_instance_epoch)
+        self.prediction_alt = self.make_prediction(ref_line1, ref_line2)
         if self.prediction_alt is not None:
             self.delta_alt = tle_instance_alt - self.prediction_alt
         else:
@@ -19,37 +19,23 @@ class epochs:
             global none_count
             none_count += 1
 
-# getters
-def get_tle_instance_epoch(self):
-        return self.tle_instance_epoch
-def get_tle_instance_alt(self):
-        return self.tle_instance_alt
-def get_instance_line1(self):
-        return self.line1
-def get_instance_line2(self):
-    return self.line2
-def get_prediction_alt(self):
-    return self.prediction_alt
-def get_delta_alt(self):
-    return self.delta_alt
+    def make_prediction(self, ref_line1, ref_line2):
+        # ephem object reads in given tle data
+        satellite = ephem.readtle('NORAD' + str(id), ref_line1, ref_line2)
+        str_date = datetime.datetime.strftime(self.tle_instance_epoch, "%Y-%m-%d %H:%M:%S")
+        ephem_date = ephem.date(str_date)
 
-def make_prediction(id, ref_line1, ref_line2, current_date):
-    # ephem object reads in given tle data
-    satellite = ephem.readtle('NORAD' + str(id), ref_line1, ref_line2)
-    str_date = datetime.datetime.strftime(current_date, "%Y-%m-%d %H:%M:%S")
-    ephem_date = ephem.date(str_date)
+        # compute satellite at date
+        try:
+            satellite.compute(ephem_date)
+            altitude = satellite.elevation / 1000
+            return altitude
 
-    # compute satellite at date
-    try:
-        satellite.compute(ephem_date)
-        altitude = satellite.elevation / 1000
-        return altitude
-
-    except:
-        return None
+        except:
+            return None
 
 def get_reference_epoch(target_id):
-    with open(f"../data/epoch_masterlist.csv", "r") as file:
+    with open(f"../../data/epoch_masterlist.csv", "r") as file:
         csv_reader = csv.reader(file)
         # pass over headers
         next(csv_reader)
@@ -87,14 +73,13 @@ def write_file(id):
         file.write("TLE INSTANCE EPOCH,TLE INSTANCE ALTITUDE (KM),TLE INSTANCE LINE 1,TLE INSTANCE LINE 2,PREDICTION FROM REFERENCE EPOCH ALTITUDE (KM),PREDICTION DELTA (KM)\n")
 
         for epoch in epoch_list:
-            file.write(f"{get_tle_instance_epoch(epoch)},{get_tle_instance_alt(epoch)},{get_instance_line1(epoch)},{get_instance_line2(epoch)},{get_prediction_alt(epoch)},{get_delta_alt(epoch)}\n")
-
+            file.write(f"{epoch.tle_instance_epoch},{epoch.tle_instance_alt},{epoch.line1},{epoch.line2},{epoch.prediction_alt},{epoch.delta_alt}\n")
 
 def main():
-    if not os.path.exists("../data/starlink_reentries_2020_2025/epoch_files"):
-        os.makedirs("../data/starlink_reentries_2020_2025/epoch_files")
+    if not os.path.exists("../../data/starlink_reentries_2020_2025/epoch_files"):
+        os.makedirs("../../data/starlink_reentries_2020_2025/epoch_files")
 
-    with open("../data/starlink_reentries_list.txt", "r") as file:
+    with open("../../data/starlink_reentries_list.txt", "r") as file:
         file.readline()
         count = 1
         for line in file:
